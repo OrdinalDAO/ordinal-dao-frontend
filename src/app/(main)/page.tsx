@@ -1,7 +1,6 @@
 'use client';
 
 import { Fragment, useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { Dialog, Menu, Transition } from "@headlessui/react";
 import {
@@ -110,7 +109,7 @@ export default function Dashboard() {
                   <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-neutral-900 px-6 pb-4">
                     <nav className="flex flex-1 flex-col">
 		                    <div className="py-10 mb-4 self-center">
-  <Link href="/"><Image src="/logo.png" alt="OrdinalDAO" width="150" height="25" /></Link>
+  <Link href="/"><img src="/logo.png" alt="OrdinalDAO" width="150" height="25" /></Link>
 </div>
 		      <ul className="space-y-5">
   {navigation.map((item) => (
@@ -148,7 +147,7 @@ export default function Dashboard() {
           <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-neutral-900 px-6 pb-4">
             <nav className="flex flex-1 flex-col">
               <div className="py-10 mb-4 self-center">
-                <Link href="/"><Image src="/logo.png" alt="OrdinalDAO" width="150" height="25" /></Link>
+                <Link href="/"><img src="/logo.png" alt="OrdinalDAO" width="150" height="25" /></Link>
               </div>
               <ul className="space-y-5">
                 {navigation.map((item) => (
