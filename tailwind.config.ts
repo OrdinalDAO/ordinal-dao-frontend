@@ -102,6 +102,9 @@ const config: Config = {
 	100: '#E6F9EF',
 	500: '#7DC066'
       },
+      'gray': {
+	500: '#667085'
+      },
       'black': '#121212',
       'white': '#FFFFFF'
     }

@@ -37,21 +37,9 @@ export function Sidebar({sidebarOpen, setSidebarOpen}: {sidebarOpen: boolean, se
       current: false,
     },
     {
-      name: "Staking",
-      href: "/staking",
+      name: "Borrow",
+      href: "/borrow",
       icon: ArrangeHorizontalCircle,
-      current: false,
-    },
-    {
-      name: "Redeem Ordinal",
-      href: "/redeem",
-      icon: Box1,
-      current: false,
-    },
-    {
-      name: "Supply Pool",
-      href: "/pool",
-      icon: Bank,
       current: false,
     },
     {
@@ -62,7 +50,7 @@ export function Sidebar({sidebarOpen, setSidebarOpen}: {sidebarOpen: boolean, se
     },
     {
       name: "Loan Management",
-      href: "/loan",
+      href: "/loans",
       icon: Money2,
       current: false,
     },
