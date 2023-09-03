@@ -1,6 +1,9 @@
 'use client'
 
 import { useState } from 'react';
+import { useMutation } from "@apollo/client";
+import { operations } from "../../../utils/api/graphql";
+import {  signTransaction, SignTransactionOptions,BitcoinNetworkType } from 'sats-connect'
 
 import {
   SearchNormal1
@@ -26,6 +29,10 @@ function Item({item}:{item:any}) {
 }
 
 export default function Borrow() {
+	const [base64Signed , setbase64] = useState()
+	const [escrowId , setEscrowId] = useState()
+	const [showLockModal, setshowLockModal] = useState(true);
+	
   const items = [
     {"name": "Doodle Max2", "status": "Available", "price": "0.12", "image": "/assets/nft-example.png"},
     {"name": "Doodle Max2", "status": "Available", "price": "0.12", "image": "/assets/nft-example.png"},
@@ -33,6 +40,165 @@ export default function Borrow() {
     {"name": "Doodle Max2", "status": "Available", "price": "0.12", "image": "/assets/nft-example.png"},
     {"name": "Doodle Max2", "status": "Available", "price": "0.12", "image": "/assets/nft-example.png"},
   ];
+  const [broadcastEscrow] = useMutation(
+    operations.mutations.BROADCAST_ESCROW,
+    {
+      onCompleted: (data) => {
+        console.log("success :>> ", data);
+      },
+      onError: (error) => {
+        console.log("error :>> ", error);
+      },
+    }
+  );
+  const [executeEscrow] = useMutation(
+    operations.mutations.EXECUTE_ESCROW,
+    {
+      onCompleted: async(data) => {
+        console.log(data.executeEscrow.transactions[0])
+        
+        const signPsbtOptions:SignTransactionOptions = {
+          payload: {
+            network: {
+              type:BitcoinNetworkType.Testnet
+            },
+            message: 'Sign Transaction',
+            psbtBase64: data.executeEscrow.transactions[0].base64,
+            broadcast: false,
+            inputsToSign: [
+              { 
+                address: "tb1pekd7wajtlpu7ncd0mvjvpge9penk8knfl7wcvtwjramv0ve3e39sx023kf", 
+                signingIndexes: [0], 
+              },
+              { 
+                address: "2N5NdDEwyAiNBPWL2MNvfvcTxVobJtS5SVy", 
+                signingIndexes: [1], 
+              }
+              ],
+          },
+          onFinish: (response:any) => {
+            setbase64(response.psbtBase64)
+            // console.log(escrowId)
+          },
+          onCancel: () => alert('Canceled'),
+        }
+        
+        await signTransaction(signPsbtOptions);
+		console.log(base64Signed)
+		console.log(escrowId)
+		broadcastEscrow({
+			variables : {
+			  data : {
+			  id:escrowId,
+			  transactions : [
+				{
+				  base64 : base64Signed 
+				}
+			  ]
+			  }
+			}
+		  })
+
+        
+      },
+      onError: (error) => {
+        console.log("error :>> ", error);
+      },
+    }
+  );
+  const [createEscrow, { loading, error }] = useMutation(
+    operations.mutations.CREATE_ESCROW,
+    {
+      onCompleted: (data) => {
+        console.log("success :>> ", data);
+        setEscrowId(data.createEscrow.id)
+        executeEscrow({
+          variables : {
+            where : {id:data.createEscrow.id}
+          }
+        })
+      },
+      onError: (error) => {
+        console.log("error :>> ", error);
+      },
+    }
+  );
+  const handleStaking = async(e:any)=>{
+	e.preventDefault()
+	const escrow = {
+		startDate: "2023-07-15T22:40:56+01:00",
+		endDate: "2023-08-14T21:40:37.658Z",
+	
+		collateral: {
+		  assets: [
+			{
+			  type: "btc.address", // 
+			  content: {
+				meta : {amount:"1000"},
+				node: {
+				  publicKey: "0393cdaf0a037c1cbd571965c188015aa2d517cba01aaa9b445675f6ddee359e9d",
+				  value: "2N5NdDEwyAiNBPWL2MNvfvcTxVobJtS5SVy" 
+				}
+			  },
+			  action: { type: "fee" },
+			  addresses: [
+				{
+				  value: "2N5NdDEwyAiNBPWL2MNvfvcTxVobJtS5SVy" ,
+				  type: "change",
+				  publicKey: "0393cdaf0a037c1cbd571965c188015aa2d517cba01aaa9b445675f6ddee359e9d" 
+				}
+			  ]
+			},
+			{
+			  type: "btc.utxo",
+			  content: {
+				meta: { amount: "7113" }, 
+				node: {
+				  id: "d54741c1007597ff8843e70d2402ea61cb010b258478bbb1bde2ab5375f52a68",
+				  sequence: 0,
+				  publicKey: "85a8de5c77fef2f6afd8596f6fe1560f556fa6aacd360e4d88492f01cf48886e", 
+				  value:"tb1pekd7wajtlpu7ncd0mvjvpge9penk8knfl7wcvtwjramv0ve3e39sx023kf"  
+				}
+			  },
+			  action: {
+				configuration: {
+				  paths: [
+					
+					{"fn": "time", 
+					"tag": "unlock", 
+					"addresses": [{"value": "tb1pekd7wajtlpu7ncd0mvjvpge9penk8knfl7wcvtwjramv0ve3e39sx023kf", "type": "receive"}], "args": ["2023-08-25 17:49:18", "0387d7cc841bd941968e7ed394785b624490a88c579ed14c91c7ec42ef70bfb5d6"]}
+				  ]
+				},
+				type: "lock",
+			  },
+			  addresses: [
+				{  
+				  value: "tb1pekd7wajtlpu7ncd0mvjvpge9penk8knfl7wcvtwjramv0ve3e39sx023kf",
+				  type: "change",
+				  publicKey:"85a8de5c77fef2f6afd8596f6fe1560f556fa6aacd360e4d88492f01cf48886e"
+				},
+			  ]
+			},
+		  ],
+		},
+	  };
+	  // api calls
+
+	  createEscrow({
+		variables : {
+		  data : escrow,
+		}
+	  })
+	  setshowLockModal(true)
+  
+  }
+
+  const handleSignOrdinal = async(e:any)=>{
+    e.preventDefault()
+   
+     // BroadcastEscrow will be called
+
+  }
   
   return (
     <>
@@ -60,7 +226,7 @@ export default function Borrow() {
 		</div>
 	      </div>
 	      <div>
-		<button className="h-11 bg-warning-500 text-white rounded-lg px-8 font-semibold text-sm w-[148px]">Stake Ordinal</button>
+		<button className="h-11 bg-warning-500 text-white rounded-lg px-8 font-semibold text-sm w-[148px]" onClick={e=>handleStaking(e)}>Stake Ordinal</button>
 	      </div>
             </div>	    
 	    <div className="pt-6">
@@ -70,6 +236,16 @@ export default function Borrow() {
 	    </div>
           </div>
         </div>
+		{showLockModal && 
+		(
+		<div>
+		<section>Lock your ordinal</section>
+		<button onClick={e=> handleSignOrdinal(e)}>lock</button>
+		<button>close modal</button>
+
+		</div>
+		)
+		}
       </main>
     </>
   );
