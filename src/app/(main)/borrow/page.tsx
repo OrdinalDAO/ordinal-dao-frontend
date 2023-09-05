@@ -3,7 +3,10 @@
 import { useState } from 'react';
 import { useMutation } from "@apollo/client";
 import { operations } from "../../../utils/api/graphql";
-import {  signTransaction, SignTransactionOptions,BitcoinNetworkType } from 'sats-connect'
+import {signTransaction, SignTransactionOptions,BitcoinNetworkType } from 'sats-connect'
+import { ethers } from 'ethers';
+import TreasuryJson from "../../../utils/contracts-json/Treasury.json"
+import TreasuryAddress from "../../../utils/contracts-json/TreasuryAddress"
 
 import {
   SearchNormal1
@@ -32,6 +35,43 @@ export default function Borrow() {
 	const [base64Signed , setbase64] = useState()
 	const [escrowId , setEscrowId] = useState()
 	const [showLockModal, setshowLockModal] = useState(true);
+	const [eligibleAmt , setEligibleAmt] = useState("") // modal-3 eligible to borrow
+	const [approxInterest , setApproxInterest] = useState("") // modal-3 interest rate / approx interest
+	let signer;// this value need to be imported here
+	let ordVal=0.000079
+	let borrowAmt=0.000023; // this amount must be selected by the user , less than the eligble amount
+	let days = 14; // selected by borrower in modal-3 / borrowing time
+	const TreasuryContract = new ethers.Contract(TreasuryAddress, TreasuryJson.abi, signer);
+	const getEligibleAmt = async(e:any)=> // modal-3 eligible to borrow
+	{
+		e.preventDefault();
+		try {
+		 let amount = await TreasuryContract.callMaxEligibleAmt(ordVal*10**18);
+		 setEligibleAmt(ethers.formatUnits(amount.toString(),18))
+		} catch (error) {
+		  console.log("Error in fetching eligible amt");
+		}
+	}
+	const getApproxInterest = async(e:any)=> // modal-3 interest rate / approx interest
+	{
+		e.preventDefault();
+		try {
+		 let amount = await TreasuryContract.callApproxInterest(borrowAmt*10**18,days);
+		 setEligibleAmt(ethers.formatUnits(amount.toString(),18))
+		} catch (error) {
+		  console.log("Error in fetching approx interest");
+		}
+	}
+
+	const processLoan = async(e:any)=>{ // modal-4 approve tx
+		e.preventDefault();
+    try {
+      await TreasuryContract.withdraw(borrowAmt * 10 ** 18);
+    } catch (error) {
+      alert("Error in sending transaction");
+    }
+	}
+
 	
   const items = [
     {"name": "Doodle Max2", "status": "Available", "price": "0.12", "image": "/assets/nft-example.png"},
@@ -193,12 +233,7 @@ export default function Borrow() {
   
   }
 
-  const handleSignOrdinal = async(e:any)=>{
-    e.preventDefault()
-   
-     // BroadcastEscrow will be called
-
-  }
+  
   
   return (
     <>
@@ -236,16 +271,6 @@ export default function Borrow() {
 	    </div>
           </div>
         </div>
-		{showLockModal && 
-		(
-		<div>
-		<section>Lock your ordinal</section>
-		<button onClick={e=> handleSignOrdinal(e)}>lock</button>
-		<button>close modal</button>
-
-		</div>
-		)
-		}
       </main>
     </>
   );

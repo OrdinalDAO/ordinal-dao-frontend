@@ -4,7 +4,7 @@ import { Fragment, useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Dialog, Menu, Transition } from "@headlessui/react";
-import { ethers } from "ethers";
+import { ethers , JsonRpcSigner } from "ethers";
 import { getAddress,AddressPurpose, BitcoinNetworkType } from 'sats-connect'
 import { GetAddressOptions } from "sats-connect";
 
@@ -217,7 +217,7 @@ export function Topbar({setSidebarOpen}:{setSidebarOpen:any}){
 }
 
 
-function ConnectModal({isOpen, closeModal, metaMaskConnectClicked, hiroConnectClicked}:{isOpen: boolean, closeModal:any, metaMaskConnectClicked: any, hiroConnectClicked: any}) {
+function ConnectModal({isOpen, closeModal, metaMaskConnectClicked, xverseConnectClicked}:{isOpen: boolean, closeModal:any, metaMaskConnectClicked: any, xverseConnectClicked: any}) {
   return (
     <>
       <Transition appear show={isOpen} as={Fragment}>
@@ -264,7 +264,7 @@ function ConnectModal({isOpen, closeModal, metaMaskConnectClicked, hiroConnectCl
 			  <MetaMaskIcon size={32} />
 			</div>
 		      </a>
-		      <a className="flex justify-between bg-neutral-200 p-4 rounded-lg items-center" href="#" onClick={hiroConnectClicked}>
+		      <a className="flex justify-between bg-neutral-200 p-4 rounded-lg items-center" href="#" onClick={xverseConnectClicked}>
 			<div>
 			  <div>Hiro Wallet</div>
 			  <div>Connect to your Hiro wallet</div>
@@ -313,15 +313,24 @@ export default function MainLayout({
   function openConnectModal() {
     setIsConnectModalOpen(true)
   }
+  const [address,setAddress]=useState()
+  const [signer,setSigner]=useState<JsonRpcSigner>()
+
 
   async function metaMaskConnectClicked() {
-    const provider = new ethers.BrowserProvider(window.ethereum);
+    const {ethereum} = window 
+    const provider = new ethers.BrowserProvider(ethereum);
+    const accounts = await provider.send("eth_requestAccounts", []);
     const signer = await provider.getSigner()
-    console.log(provider)
-    console.log(signer)
+    
+  console.log(provider)
+  console.log(accounts[0]); setAddress(accounts[0])
+  console.log(signer); setSigner(signer)
+
+
   }
 
- async function hiroConnectClicked() {
+ async function xverseConnectClicked() {
   console.log("clicked")
     const getAddressOptions:GetAddressOptions= {
       payload: {
@@ -362,7 +371,7 @@ export default function MainLayout({
 	  </div>	  
 	  {children}
         </div>
-	<ConnectModal isOpen={isConnectModalOpen} closeModal={closeConnectModal} metaMaskConnectClicked={metaMaskConnectClicked} hiroConnectClicked={hiroConnectClicked} />
+	<ConnectModal isOpen={isConnectModalOpen} closeModal={closeConnectModal} metaMaskConnectClicked={metaMaskConnectClicked} xverseConnectClicked={xverseConnectClicked} />
       </div>
     </>
   )
