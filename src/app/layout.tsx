@@ -7,7 +7,7 @@ import { ApolloProvider } from "@apollo/client";
 import KeyProvider from "../context/key";
 const inter = Inter_Tight({ subsets: ['latin'] })
 
-export const metadata: Metadata = {
+const metadata: Metadata = {
   title: 'OrdinalDAO',
   description: '',
 }
