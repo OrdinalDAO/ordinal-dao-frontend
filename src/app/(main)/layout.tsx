@@ -4,8 +4,9 @@ import { Fragment, useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Dialog, Menu, Transition } from "@headlessui/react";
-
-import { MetaMaskSDK, MetaMaskSDKOptions } from '@metamask/sdk';
+import { ethers } from "ethers";
+import { getAddress,AddressPurpose, BitcoinNetworkType } from 'sats-connect'
+import { GetAddressOptions } from "sats-connect";
 
 import {
   Element3,
@@ -21,7 +22,12 @@ import {
   CloseCircle,
 } from "iconsax-react";
 import { EmojiHappyIcon, MetaMaskIcon } from "@/components/Icons";
+
 import {classNames} from "@/utils"
+
+import { sign } from "crypto";
+
+declare var window: any;
 
 export function Sidebar({sidebarOpen, setSidebarOpen}: {sidebarOpen: boolean, setSidebarOpen: any}){
   const pathname = usePathname();
@@ -288,14 +294,14 @@ export default function MainLayout({
 }: {
   children: React.ReactNode
 }) {  
-  const options: MetaMaskSDKOptions = {
-    dappMetadata: {
-      name: "OrdinalDAO",
-      url: "https://ordinal-dao.pages.dev",
-    }
-  };
+  // const options: MetaMaskSDKOptions = {
+  //   dappMetadata: {
+  //     name: "OrdinalDAO",
+  //     url: "https://ordinal-dao.pages.dev",
+  //   }
+  // };
   
-  const MMSDK = new MetaMaskSDK(options);
+  // const MMSDK = new MetaMaskSDK(options);
   
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -309,13 +315,29 @@ export default function MainLayout({
     setIsConnectModalOpen(true)
   }
 
-  function metaMaskConnectClicked() {
-    const ethereum = MMSDK.getProvider();
-    ethereum.request({ method: 'eth_requestAccounts', params: [] })
+  async function metaMaskConnectClicked() {
+    const provider = new ethers.BrowserProvider(window.ethereum);
+    const signer = await provider.getSigner()
+    console.log(provider)
+    console.log(signer)
   }
 
-  function hiroConnectClicked() {
-    
+ async function hiroConnectClicked() {
+  console.log("clicked")
+    const getAddressOptions:GetAddressOptions= {
+      payload: {
+        purposes: [AddressPurpose.Ordinals,AddressPurpose.Payment],
+        message: 'Address for receiving Ordinals and payments',
+        network: {
+          type:BitcoinNetworkType.Testnet
+        },
+      },
+      onFinish: (response:any) => {
+        console.log(response.addresses)
+      },
+      onCancel: () => alert('Request canceled'),
+      }
+      await getAddress(getAddressOptions);
   }
   
   return (
