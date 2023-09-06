@@ -117,7 +117,7 @@ export function Sidebar({sidebarOpen, setSidebarOpen}: {sidebarOpen: boolean, se
 			    "rounded",
 			  )}
 			>
-			  <a
+			  <Link
 			    href={item.href}
 			    className={classNames(
 			      item.current
@@ -128,7 +128,7 @@ export function Sidebar({sidebarOpen, setSidebarOpen}: {sidebarOpen: boolean, se
 			  >
 			    <item.icon size={20} variant="Bold" />
 			    <span>{item.name}</span>
-			  </a>
+			  </Link>
 			</li>
 		      ))}
 		    </ul>
@@ -154,7 +154,7 @@ export function Sidebar({sidebarOpen, setSidebarOpen}: {sidebarOpen: boolean, se
                     "rounded",
 		  )}
 		>
-		  <a
+		  <Link
                     href={item.href}
                     className={classNames(
                       item.current
@@ -165,7 +165,7 @@ export function Sidebar({sidebarOpen, setSidebarOpen}: {sidebarOpen: boolean, se
 		  >
                     <item.icon size={20} variant="Bold" />
                     <span>{item.name}</span>
-		  </a>
+		  </Link>
 		</li>
               ))}
             </ul>
@@ -413,8 +413,10 @@ export default function AuthLayout({children}:{
   children: React.ReactNode
 }){
   return (
+    <>
     <AuthProvider>
       <MainLayout>{children}</MainLayout>
     </AuthProvider>
+    </>
   )
 }
