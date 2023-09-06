@@ -28,14 +28,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-<<<<<<< HEAD
-        <ApolloWrapper>{children}</ApolloWrapper>
+        <ApolloWrapper>
+          <ApolloProvider  client={client({ pkey: "clh9l6w9l000008mobug48zm6" })}><KeyProvider pkey={{ value: "clh9l6w9l000008mobug48zm6" }}> {children}</KeyProvider></ApolloProvider>
+	</ApolloWrapper>
       </body>
-=======
-        <ApolloProvider  client={client({ pkey: "clh9l6w9l000008mobug48zm6" })}><KeyProvider pkey={{ value: "clh9l6w9l000008mobug48zm6" }}> {children}</KeyProvider></ApolloProvider>
-       
-        </body>
->>>>>>> e05a257617f7db7d4ea85dd60189bdffa907d78b
     </html>
   )
 }
