@@ -65,7 +65,7 @@ function BorrowModal({isOpen, closeModal, items}: {isOpen:boolean, closeModal:an
     setStep("summary");
   }
 
-  function submitClicked(e){
+  function submitClicked(e:any){
     e.preventDefault();
     console.log("Submit clicked");
     if (borrowAmountRef?.current){
