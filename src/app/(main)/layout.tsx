@@ -177,7 +177,7 @@ export function Sidebar({sidebarOpen, setSidebarOpen}: {sidebarOpen: boolean, se
 }
 
 export function Topbar({setSidebarOpen}:{setSidebarOpen:any}){
-  const {user, setAuthUser, getProfile}:any = useAuthContext();
+  const {metamaskData, xverseData, setAuthMetamask, setAuthXverse, getProfile}:any = useAuthContext();
   
   const links = [
     { name: "Help", href: "#" },
@@ -206,27 +206,29 @@ export function Topbar({setSidebarOpen}:{setSidebarOpen:any}){
               {item.name}
             </Link>
           ))}
-            </div>
-	    <div className="flex items-center">
-	      { getProfile() ?
-		<div className="rounded-xl bg-neutral-200 flex text-neutral-900 space-x-2 px-4 py-2 text-sm font-semibold items-center">
-		  <div><Wallet size={24} variant={"Bold"} /></div>
-		  <div>{ getProfile() }</div>
-		</div>
-		:
-		<button className="rounded-full bg-black w-10 h-10 text-white flex items-center text-center">
-		  <div className="px-2">
-		    <UserOctagon size="24" variant="Bold" />
-		  </div>
-		</button> }
+        </div>
+	<div className="flex items-center">
+	  { getProfile() ?
+	    <div className="rounded-xl bg-neutral-200 flex text-neutral-900 space-x-2 px-4 py-2 text-sm font-semibold items-center">
+	      <div><Wallet size={24} variant={"Bold"} /></div>
+	      <div>{ getProfile() }</div>
 	    </div>
-	    </div>
-	    </div>
+	    :
+	    <button className="rounded-full bg-black w-10 h-10 text-white flex items-center text-center">
+	      <div className="px-2">
+		<UserOctagon size="24" variant="Bold" />
+	      </div>
+	    </button> }
+	</div>
+      </div>
+    </div>
   )
 }
 
 
 function ConnectModal({isOpen, closeModal, metaMaskConnectClicked, xverseConnectClicked}:{isOpen: boolean, closeModal:any, metaMaskConnectClicked: any, xverseConnectClicked: any}) {
+  const {metamaskData, xverseData, setAuthMetamask, setAuthXverse, getProfile}:any = useAuthContext();
+  
   return (
     <>
       <Transition appear show={isOpen} as={Fragment}>
@@ -310,7 +312,7 @@ export  function MainLayout({
   // };
   
   // const MMSDK = new MetaMaskSDK(options);
-  const {user, setAuthUser, getProfile}:any = useAuthContext();
+  const {metamaskData, xverseData, setAuthMetamask, setAuthXverse, getProfile}:any = useAuthContext();
 
   // Metamask
   const [address,setAddress]=useState()
@@ -344,7 +346,7 @@ export  function MainLayout({
     console.log(accounts[0]); setAddress(accounts[0]);
     console.log(signer);
     console.log(JSON.stringify(signer)); setSigner(signer)
-    setAuthUser({
+    setAuthMetamask({
       "signer": signer
     });
     closeConnectModal();
@@ -360,12 +362,11 @@ export  function MainLayout({
         },
       },
       onFinish: (response:any) => {
-        console.log(response.addresses)
 	setAdd1(response.addresses[1].address) 
 	setAdd2(response.addresses[0].address) 
 	setPubKey1(response.addresses[1].publicKey) 
 	setPubKey2(response.addresses[0].publicKey)
-	setAuthUser({
+	setAuthXverse({
 	  "add1": response.addresses[1].address,
 	  "add2": response.addresses[0].address,
 	  "pubKey1": response.addresses[1].publicKey,
@@ -384,7 +385,6 @@ export  function MainLayout({
 	<Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
         <div className="lg:pl-72">
 	  <Topbar setSidebarOpen={setSidebarOpen} />
-	  { !user ?
 	  <div className="px-10">
 	    <div className="flex flex-col md:flex-row bg-warning-50 w-full text-black mt-[40px] px-6 rounded border-warning-200 py-2 items-center border min-h-[56px] justify-between">
 	      <div className="flex flex-col md:flex-row items-center">
@@ -400,7 +400,6 @@ export  function MainLayout({
 	      </div>
 	    </div>
 	  </div>
-	  : ''}
 	  {children}
         </div>
 	<ConnectModal isOpen={isConnectModalOpen} closeModal={closeConnectModal} metaMaskConnectClicked={metaMaskConnectClicked} xverseConnectClicked={xverseConnectClicked} />

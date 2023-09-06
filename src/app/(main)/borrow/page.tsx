@@ -37,7 +37,7 @@ function Item({item, clicked}:{item:any, clicked:any}) {
 }
 
 function BorrowModal({isOpen, closeModal, items}: {isOpen:boolean, closeModal:any, items:any}) {
-  const {user, setAuthUser, getProfile}:any = useAuthContext();
+  const {metamaskData, xverseData, setAuthMetamask, setAuthXverse, getProfile}:any = useAuthContext();
   
   const selectedItems = items.filter((item: any) => item.selected);
 
@@ -57,7 +57,7 @@ function BorrowModal({isOpen, closeModal, items}: {isOpen:boolean, closeModal:an
   const borrowAmountRef = useRef<HTMLInputElement>(null);
 
   function lockOridnalClicked(){
-    console.log(user);
+    console.log(metamaskData);
     setStep("approve");
   }
 

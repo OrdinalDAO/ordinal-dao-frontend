@@ -8,27 +8,32 @@ const AuthContext = createContext(null);
 export const useAuthContext = () => useContext(AuthContext);
 
 export const AuthProvider = ({children}) => {
-  const [user, setUser] = useState(JSON.parse(typeof window !== 'undefined' ? window.localStorage.getItem("user"): false));
+  const [metamaskData, setMetamaskData] = useState(JSON.parse(typeof window !== 'undefined' ? window.localStorage.getItem("metamask_data"): false));
+  const [xverseData, setXverseData] = useState(JSON.parse(typeof window !== 'undefined' ? window.localStorage.getItem("xverse_data"): false));
   
-  function setAuthUser(user) {
-    typeof window !== 'undefined' ? window.localStorage.setItem("user", JSON.stringify(user)) : false;
-    setUser(user);
+  function setAuthMetamask(data) {
+    typeof window !== 'undefined' ? window.localStorage.setItem("metamask_data", JSON.stringify(data)) : false;
+    setMetamaskData(data)
+  }
+
+  function setAuthXverse(data) {
+    typeof window !== 'undefined' ? window.localStorage.setItem("xverse_data", JSON.stringify(data)) : false;
+    setXverseData(data)
   }
 
   function getProfile(){
-    if (user) {
-      if ("signer" in user) {
-	let address = user.signer.address;
+    if (metamaskData) {
+	let address = metamaskData.signer.address;
 	return `${address.substr(0, 5)}...${address.substr(address.length - 4, address.length)}`;
-      }
-      if ("pubKey1" in user) {
-	return `0x${user.pubKey1.substr(0, 5)}...${user.pubKey1.substr(user.pubKey1.length - 4, user.pubKey1.length)}`
-      }
+    }
+    if (xverseData) {
+        let address = xverseData.pubKey1;
+        return `0x${address.substr(0, 5)}...${address.substr(address.length - 4, address.length)}`;
     }
   }
   
   return (
-    <AuthContext.Provider value={{user, setAuthUser, getProfile}}>
+    <AuthContext.Provider value={{metamaskData, xverseData, setAuthMetamask, setAuthXverse, getProfile}}>
       {children}
     </AuthContext.Provider>
   )
