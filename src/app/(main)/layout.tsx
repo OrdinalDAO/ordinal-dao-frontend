@@ -413,8 +413,10 @@ export default function AuthLayout({children}:{
   children: React.ReactNode
 }){
   return (
+    <>
     <AuthProvider>
-      <MainLayout>{children}</MainLayout>
+      <MainLayout children={children} />
     </AuthProvider>
+    </>
   )
 }

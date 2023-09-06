@@ -21,9 +21,8 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <ApolloProvider  client={client({ pkey: "clh9l6w9l000008mobug48zm6" })}><KeyProvider pkey={{ value: "clh9l6w9l000008mobug48zm6" }}> {children}</KeyProvider></ApolloProvider>
-       
-        </body>
+        <ApolloProvider  client={client({ pkey: "clh9l6w9l000008mobug48zm6" })}><KeyProvider pkey={{ value: "clh9l6w9l000008mobug48zm6" }}>{children}</KeyProvider></ApolloProvider>       
+       </body>
     </html>
   )
 }
