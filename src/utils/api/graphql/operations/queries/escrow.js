@@ -114,3 +114,7 @@ export const ESCROW = gql`
 const escrow = { ESCROWS, ESCROW };
 
 export default escrow;
+<<<<<<< HEAD
+
+=======
+>>>>>>> e05a257617f7db7d4ea85dd60189bdffa907d78b

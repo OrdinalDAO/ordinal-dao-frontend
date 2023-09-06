@@ -7,7 +7,6 @@ import { Dialog, Menu, Transition } from "@headlessui/react";
 import { ethers , JsonRpcSigner } from "ethers";
 import { getAddress,AddressPurpose, BitcoinNetworkType } from 'sats-connect'
 import { GetAddressOptions } from "sats-connect";
-
 import {
   Element3,
   ArrangeHorizontalCircle,
@@ -329,7 +328,7 @@ export  function MainLayout({
 
   function closeConnectModal() {
     setIsConnectModalOpen(false)
-  }
+  } 
 
   function openConnectModal() {
     setIsConnectModalOpen(true)
