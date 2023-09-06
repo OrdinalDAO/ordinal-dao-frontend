@@ -4,7 +4,7 @@ import { Fragment, useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Dialog, Menu, Transition } from "@headlessui/react";
-import { ethers } from "ethers";
+import { ethers , JsonRpcSigner } from "ethers";
 import { getAddress,AddressPurpose, BitcoinNetworkType } from 'sats-connect'
 import { GetAddressOptions } from "sats-connect";
 
@@ -22,13 +22,14 @@ import {
   CloseCircle,
 } from "iconsax-react";
 import { EmojiHappyIcon, MetaMaskIcon } from "@/components/Icons";
-
-import {classNames} from "@/utils"
-
 import { sign } from "crypto";
 
-declare var window: any;
+import { AuthProvider, useAuthContext } from '@/lib/auth';
 
+function classNames(...classes:string[]) {
+  return classes.filter(Boolean).join(" ");
+}
+declare var window: any
 export function Sidebar({sidebarOpen, setSidebarOpen}: {sidebarOpen: boolean, setSidebarOpen: any}){
   const pathname = usePathname();
   
@@ -177,6 +178,8 @@ export function Sidebar({sidebarOpen, setSidebarOpen}: {sidebarOpen: boolean, se
 }
 
 export function Topbar({setSidebarOpen}:{setSidebarOpen:any}){
+  const {user, setAuthUser, getProfile}:any = useAuthContext();
+  
   const links = [
     { name: "Help", href: "#" },
     { name: "FAQ", href: "#" },
@@ -204,21 +207,27 @@ export function Topbar({setSidebarOpen}:{setSidebarOpen:any}){
               {item.name}
             </Link>
           ))}
-        </div>
-	<div className="flex items-center">
-	  <button className="rounded-full bg-black w-10 h-10 text-white flex items-center text-center">
-	    <div className="px-2">
-	      <UserOctagon size="24" variant="Bold" />
+            </div>
+	    <div className="flex items-center">
+	      { getProfile() ?
+		<div className="rounded-xl bg-neutral-200 flex text-neutral-900 space-x-2 px-4 py-2 text-sm font-semibold items-center">
+		  <div><Wallet size={24} variant={"Bold"} /></div>
+		  <div>{ getProfile() }</div>
+		</div>
+		:
+		<button className="rounded-full bg-black w-10 h-10 text-white flex items-center text-center">
+		  <div className="px-2">
+		    <UserOctagon size="24" variant="Bold" />
+		  </div>
+		</button> }
 	    </div>
-	  </button>
-	</div>
-      </div>
-    </div>
+	    </div>
+	    </div>
   )
 }
 
 
-function ConnectModal({isOpen, closeModal, metaMaskConnectClicked, hiroConnectClicked}:{isOpen: boolean, closeModal:any, metaMaskConnectClicked: any, hiroConnectClicked: any}) {
+function ConnectModal({isOpen, closeModal, metaMaskConnectClicked, xverseConnectClicked}:{isOpen: boolean, closeModal:any, metaMaskConnectClicked: any, xverseConnectClicked: any}) {
   return (
     <>
       <Transition appear show={isOpen} as={Fragment}>
@@ -265,10 +274,10 @@ function ConnectModal({isOpen, closeModal, metaMaskConnectClicked, hiroConnectCl
 			  <MetaMaskIcon size={32} />
 			</div>
 		      </a>
-		      <a className="flex justify-between bg-neutral-200 p-4 rounded-lg items-center" href="#" onClick={hiroConnectClicked}>
+		      <a className="flex justify-between bg-neutral-200 p-4 rounded-lg items-center" href="#" onClick={xverseConnectClicked}>
 			<div>
-			  <div>Hiro Wallet</div>
-			  <div>Connect to your Hiro wallet</div>
+			  <div>Xverse Wallet</div>
+			  <div>Connect to your Xverse wallet</div>
 			</div>
 			<div>
 			  <img width="32" src="/assets/hiro128.png" />
@@ -289,7 +298,7 @@ function ConnectModal({isOpen, closeModal, metaMaskConnectClicked, hiroConnectCl
   )
 }
 
-export default function MainLayout({
+export  function MainLayout({
   children,
 }: {
   children: React.ReactNode
@@ -302,6 +311,17 @@ export default function MainLayout({
   // };
   
   // const MMSDK = new MetaMaskSDK(options);
+  const {user, setAuthUser, getProfile}:any = useAuthContext();
+
+  // Metamask
+  const [address,setAddress]=useState()
+  const [signer,setSigner]=useState<JsonRpcSigner>()
+
+  // Xverse
+  const [add1, setAdd1] = useState(""); // xverse wallet fee paying 
+  const [pubkey1, setPubKey1] = useState(""); // xverse wallet fee paying 
+  const [add2, setAdd2] = useState(""); //ord
+  const [pubkey2, setPubKey2] = useState(""); // ord
   
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -314,16 +334,24 @@ export default function MainLayout({
   function openConnectModal() {
     setIsConnectModalOpen(true)
   }
-
+  
   async function metaMaskConnectClicked() {
-    const provider = new ethers.BrowserProvider(window.ethereum);
+    const {ethereum} = window;
+    const provider = new ethers.BrowserProvider(ethereum);
+    const accounts = await provider.send("eth_requestAccounts", []);
     const signer = await provider.getSigner()
-    console.log(provider)
-    console.log(signer)
+    
+    console.log(provider);
+    console.log(accounts[0]); setAddress(accounts[0]);
+    console.log(signer);
+    console.log(JSON.stringify(signer)); setSigner(signer)
+    setAuthUser({
+      "signer": signer
+    });
+    closeConnectModal();
   }
 
- async function hiroConnectClicked() {
-  console.log("clicked")
+  async function xverseConnectClicked() {
     const getAddressOptions:GetAddressOptions= {
       payload: {
         purposes: [AddressPurpose.Ordinals,AddressPurpose.Payment],
@@ -334,10 +362,21 @@ export default function MainLayout({
       },
       onFinish: (response:any) => {
         console.log(response.addresses)
+	setAdd1(response.addresses[1].address) 
+	setAdd2(response.addresses[0].address) 
+	setPubKey1(response.addresses[1].publicKey) 
+	setPubKey2(response.addresses[0].publicKey)
+	setAuthUser({
+	  "add1": response.addresses[1].address,
+	  "add2": response.addresses[0].address,
+	  "pubKey1": response.addresses[1].publicKey,
+	  "pubKey2": response.addresses[0].publicKey,
+	});
+	closeConnectModal();
       },
       onCancel: () => alert('Request canceled'),
-      }
-      await getAddress(getAddressOptions);
+    }
+   await getAddress(getAddressOptions);
   }
   
   return (
@@ -346,6 +385,7 @@ export default function MainLayout({
 	<Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
         <div className="lg:pl-72">
 	  <Topbar setSidebarOpen={setSidebarOpen} />
+	  { !user ?
 	  <div className="px-10">
 	    <div className="flex flex-col md:flex-row bg-warning-50 w-full text-black mt-[40px] px-6 rounded border-warning-200 py-2 items-center border min-h-[56px] justify-between">
 	      <div className="flex flex-col md:flex-row items-center">
@@ -360,11 +400,22 @@ export default function MainLayout({
 		<button className="h-10 rounded-lg bg-warning-500 text-white px-4 py-2 font-semibold mt-2 md:mt-0" onClick={openConnectModal}>Connect Wallet</button>
 	      </div>
 	    </div>
-	  </div>	  
+	  </div>
+	  : ''}
 	  {children}
         </div>
-	<ConnectModal isOpen={isConnectModalOpen} closeModal={closeConnectModal} metaMaskConnectClicked={metaMaskConnectClicked} hiroConnectClicked={hiroConnectClicked} />
+	<ConnectModal isOpen={isConnectModalOpen} closeModal={closeConnectModal} metaMaskConnectClicked={metaMaskConnectClicked} xverseConnectClicked={xverseConnectClicked} />
       </div>
     </>
+  )
+}
+
+export default function AuthLayout({children}:{
+  children: React.ReactNode
+}){
+  return (
+    <AuthProvider>
+      <MainLayout>{children}</MainLayout>
+    </AuthProvider>
   )
 }

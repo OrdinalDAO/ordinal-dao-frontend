@@ -1,9 +1,11 @@
 'use client'
 
-import { Fragment, useState, useEffect } from "react";
+import { Fragment, useState, useEffect, useRef } from "react";
 import { useMutation } from "@apollo/client";
 import { operations } from "../../../utils/api/graphql"
 import {  signTransaction, SignTransactionOptions,BitcoinNetworkType } from 'sats-connect';
+
+import { useAuthContext } from '@/lib/auth';
 
 import { Dialog, Menu, Transition } from "@headlessui/react"
 import { RadioGroup } from "@headlessui/react"
@@ -35,14 +37,16 @@ function Item({item, clicked}:{item:any, clicked:any}) {
 }
 
 function BorrowModal({isOpen, closeModal, items}: {isOpen:boolean, closeModal:any, items:any}) {
+  const {user, setAuthUser, getProfile}:any = useAuthContext();
+  
   const selectedItems = items.filter((item: any) => item.selected);
 
   const times = [
-    { id: 1, time: "7 Days"},
-    { id: 2, time: "14 Days"},
-    { id: 3, time: "30 Days"},
-    { id: 4, time: "60 Days"},
-    { id: 5, time: "144 Days"},
+    { id: 1, time: "7 Days", value: "7"},
+    { id: 2, time: "14 Days", value: "14"},
+    { id: 3, time: "30 Days", value: "30"},
+    { id: 4, time: "60 Days", value: "60"},
+    { id: 5, time: "144 Days", value: "144"},
   ]
   const [selectedTime, setSelectedTime] = useState(times[0])
 
@@ -50,7 +54,10 @@ function BorrowModal({isOpen, closeModal, items}: {isOpen:boolean, closeModal:an
   
   const [step, setStep]  = useState("lock");
 
+  const borrowAmountRef = useRef<HTMLInputElement>(null);
+
   function lockOridnalClicked(){
+    console.log(user);
     setStep("approve");
   }
 
@@ -59,7 +66,12 @@ function BorrowModal({isOpen, closeModal, items}: {isOpen:boolean, closeModal:an
   }
 
   function submitClicked(){
-    setStep("approve_wallet");
+    console.log("Submit clicked");
+    if (borrowAmountRef?.current){
+      console.log(borrowAmountRef?.current["value"]);
+    }
+    console.log(selectedTime);
+    //setStep("approve_wallet");
   }
 
   function approveTransactionClicked(){
@@ -106,61 +118,79 @@ function BorrowModal({isOpen, closeModal, items}: {isOpen:boolean, closeModal:an
 	  <img src="/assets/nft-example.png" width="112px" height="112px" className="rounded-full" />
 	</div>
 	<div className="p-8">
-	  <div className="space-y-6">
-	    <div className="flex justify-between text-sm font-medium">
-	      <div>Ordinal Inscription ID:</div>
-	      <div>9b5ad40e4bd......6f3i0</div>
-	    </div>
-	    <div className="flex justify-between text-sm font-medium">
-	      <div>Ordinal Value:</div>
-	      <div>0.000079 BTC</div>
-	    </div>
-	    <div className="flex justify-between text-sm font-medium">
-	      <div>Eligible to borrow</div>
-	      <div>0.082rBTC</div>
-	    </div>
-	    <div className="flex justify-between text-sm font-medium">
-	      <div>Loan to Value (LTV)</div>
-	      <div>20%</div>
-	    </div>
-	    <div className="h-[1px] bg-neutral-200"></div>
-	    <div>
-	      <div className="text-sm font-medium">Select Borrowing time</div>
-	      <div>
-		<RadioGroup value={selectedTime} onChange={setSelectedTime} className="bg-gray-50 p-1 border-neutral-200 border rounded-lg mt-4">
-		  <div className="flex space-x-2 items-center">
-		    {times.map((time) => (
-		      <RadioGroup.Option
-			key={time.id}
-			value={time}
-			className={({ active }) =>
-			  classNames(
-			    active ? 'bg-warning-500 text-white' : 'bg-neutral-200 text-neutral-600',
-			    "flex-1 px-1.5 py-1 border-neutral-200 border rounded-lg cursor-pointer h-7 font-medium"
-			  )
-			}
-		      >
-			{({ checked, active }) => (
-			  <RadioGroup.Label as="span" className="flex items-center justify-center text-xs text-center">
-			    {time.time}
-			  </RadioGroup.Label>
-			)}
-		      </RadioGroup.Option>
-		    ))}
-		  </div>
-		</RadioGroup>
+	  <form method="post">
+	    <div className="space-y-6">
+	      <div className="flex justify-between text-sm font-medium">
+		<div>Ordinal Inscription ID:</div>
+		<div>9b5ad40e4bd......6f3i0</div>
 	      </div>
+	      <div className="flex justify-between text-sm font-medium">
+		<div>Ordinal Value:</div>
+		<div>0.000079 BTC</div>
+	      </div>
+	      <div className="flex justify-between text-sm font-medium">
+		<div>Eligible to borrow</div>
+		<div>0.082rBTC</div>
+	      </div>
+	      <div className="flex justify-between text-sm font-medium">
+		<div>Loan to Value (LTV)</div>
+		<div>20%</div>
+	      </div>
+	      <div className="h-[1px] bg-neutral-200"></div>
+	      <div>
+		<div className="text-sm font-medium">Borrow amount</div>
+		<div className="relative mt-2 rounded-md shadow-sm">
+		  <input
+		    ref={borrowAmountRef}
+		    type="text"
+		    name="borrow_amount"
+		    id="borrow_amount"
+		    className="block w-full rounded-md border-0 py-1.5 px-4 text-neutral-900 ring-1 ring-inset ring-neutral-200 focus:ring-neutral-200 h-[50px]"
+		    placeholder="0.00"
+		  />
+		  <div className="absolute inset-y-0 right-0 flex items-center pr-3">
+		    <button className="rounded-2xl bg-neutral-900 text-white text-xs px-3 h-8">MAX</button>
+		  </div>
+		</div>
+	      </div>
+	      <div>
+		<div className="text-sm font-medium">Select Borrowing time</div>
+		<div>
+		  <RadioGroup value={selectedTime} onChange={setSelectedTime} className="bg-gray-50 p-1 border-neutral-200 border rounded-lg mt-4">
+		    <div className="flex space-x-2 items-center">
+		      {times.map((time) => (
+			<RadioGroup.Option
+			  key={time.id}
+			  value={time}
+			  className={({ active }) =>
+			    classNames(
+			      active ? 'bg-warning-500 text-white' : 'bg-neutral-200 text-neutral-600',
+			      "flex-1 px-1.5 py-1 border-neutral-200 border rounded-lg cursor-pointer h-7 font-medium"
+			    )
+			  }
+			>
+			  {({ checked, active }) => (
+			    <RadioGroup.Label as="span" className="flex items-center justify-center text-xs text-center">
+			      {time.time}
+			    </RadioGroup.Label>
+			  )}
+			</RadioGroup.Option>
+		      ))}
+		    </div>
+		  </RadioGroup>
+		</div>
+	      </div>
+	      <div className="flex justify-between text-sm font-medium">
+		<div>Interest Rate:</div>
+		<div>0.0 rBTC</div>
+	      </div>
+	      <div className="h-[1px] bg-neutral-200"></div>
+	      <button type="submit" className="rounded-lg bg-black text-white font-semibold text-sm h-10 w-full" onClick={submitClicked}>Submit</button>
 	    </div>
-	    <div className="flex justify-between text-sm font-medium">
-	      <div>Interest Rate:</div>
-	      <div>0.0 rBTC</div>
-	    </div>
-	    <div className="h-[1px] bg-neutral-200"></div>
-	    <button className="rounded-lg bg-black text-white font-semibold text-sm h-10 w-full" onClick={submitClicked}>Submit</button>
-	  </div>
+	  </form>
 	</div>
       </>
-  )
+    )
 
   const approveWalletDialog = (
     <>
