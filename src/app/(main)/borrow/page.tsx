@@ -509,7 +509,7 @@ export default function Borrow() {
 	<div className="flex flex-col space-y-10 text-black">
 	  <div>
 	    <div>
-	      <div className="text-neutral-900 text-2xl font-medium pb-2">Borrow</div>
+	      <div className="text-neutral-900 text-xl font-medium pb-2">Borrow</div>
 	      <div className="text-neutral-600 text-base font-medium">Lock your ordinal, borrow rBTC</div>
 	    </div>
 	    <div className="flex justify-between pt-6 space-x-6 w-full">
