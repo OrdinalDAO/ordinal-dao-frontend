@@ -8,16 +8,14 @@ const AuthContext = createContext(null);
 export const useAuthContext = () => useContext(AuthContext);
 
 export const AuthProvider = ({children}) => {
-  const [metamaskData, setMetamaskData] = useState(JSON.parse(typeof window !== 'undefined' ? window.localStorage.getItem("metamask_data"): false));
-  const [xverseData, setXverseData] = useState(JSON.parse(typeof window !== 'undefined' ? window.localStorage.getItem("xverse_data"): false));
+  const [metamaskData, setMetamaskData] = useState(false);
+  const [xverseData, setXverseData] = useState(false);
   
   function setAuthMetamask(data) {
-    typeof window !== 'undefined' ? window.localStorage.setItem("metamask_data", JSON.stringify(data)) : false;
     setMetamaskData(data)
   }
 
   function setAuthXverse(data) {
-    typeof window !== 'undefined' ? window.localStorage.setItem("xverse_data", JSON.stringify(data)) : false;
     setXverseData(data)
   }
 

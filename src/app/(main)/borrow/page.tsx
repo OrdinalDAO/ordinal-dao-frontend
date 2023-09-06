@@ -58,6 +58,7 @@ function BorrowModal({isOpen, closeModal, items}: {isOpen:boolean, closeModal:an
 
   function lockOridnalClicked(){
     console.log(metamaskData);
+    console.log(xverseData);
     setStep("approve");
   }
 
