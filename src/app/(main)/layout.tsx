@@ -21,12 +21,13 @@ import {
   CloseCircle,
 } from "iconsax-react";
 import { EmojiHappyIcon, MetaMaskIcon } from "@/components/Icons";
+
+import {classNames} from "@/utils"
+
 import { sign } from "crypto";
 
-function classNames(...classes:string[]) {
-  return classes.filter(Boolean).join(" ");
-}
-declare var window: any
+declare var window: any;
+
 export function Sidebar({sidebarOpen, setSidebarOpen}: {sidebarOpen: boolean, setSidebarOpen: any}){
   const pathname = usePathname();
   
