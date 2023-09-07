@@ -281,7 +281,7 @@ function ConnectModal({isOpen, closeModal, metaMaskConnectClicked, xverseConnect
 			  <div>Connect to your Xverse wallet</div>
 			</div>
 			<div>
-			  <img width="32" src="/assets/hiro128.png" />
+			  <img width="32" src="/assets/xverse.png" />
 			</div>
 		      </a>
 		    </div>
