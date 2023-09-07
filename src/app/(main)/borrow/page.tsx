@@ -338,26 +338,28 @@ try {
   }
 
   function onMaxClicked(){
-    borrowAmountRef.current.value = approxAmt
+    if (borrowAmountRef.current){
+      borrowAmountRef.current.value = approxAmt
+    }      
   }
 
-  const lockDialog = (
-    <>
-      <div className="h-[160px] flex justify-center items-center mt-[30px]">
-	<img src="/assets/nft-example.png" width="112px" height="112px" className="rounded-full" />
-      </div>
-      <div className="px-8 flex-col flex items-center">
-	<div className="text-lg font-semibold">Lock your ordinals</div>
-	<div className="text-neutral-600 text-sm pt-4 pb-8 text-center">
-	  In order to proceed, your Ordinal will be locked and used for staking.
-	</div>
-	<div className="flex pb-8 space-x-4 w-full">
-	  <button className="basis-1/2 grow rounded-lg bg-white h-10 text-neutral-900 border border-neutral-200 text-sm font-semibold" onClick={closeModal}>Close</button>
-	  <button className="basis-1/2 grow rounded-lg bg-neutral-900 h-10 text-white text-sm font-semibold" onClick={lockOridnalClicked}>Lock Ordinal</button>
-	</div>
-      </div>
-    </>
-  )
+      const lockDialog = (
+	<>
+	  <div className="h-[160px] flex justify-center items-center mt-[30px]">
+	    <img src="/assets/nft-example.png" width="112px" height="112px" className="rounded-full" />
+	  </div>
+	  <div className="px-8 flex-col flex items-center">
+	    <div className="text-lg font-semibold">Lock your ordinals</div>
+	    <div className="text-neutral-600 text-sm pt-4 pb-8 text-center">
+	      In order to proceed, your Ordinal will be locked and used for staking.
+	    </div>
+	    <div className="flex pb-8 space-x-4 w-full">
+	      <button className="basis-1/2 grow rounded-lg bg-white h-10 text-neutral-900 border border-neutral-200 text-sm font-semibold" onClick={closeModal}>Close</button>
+	      <button className="basis-1/2 grow rounded-lg bg-neutral-900 h-10 text-white text-sm font-semibold" onClick={lockOridnalClicked}>Lock Ordinal</button>
+	    </div>
+	  </div>
+	</>
+      )
 
   const approveDialog = (
     <>
