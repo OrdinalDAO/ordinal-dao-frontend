@@ -1,6 +1,7 @@
 'use client'
 
 import { Fragment, useState, useEffect, useRef } from "react";
+import { ethers } from "ethers";
 import { useMutation } from "@apollo/client";
 import { operations } from "../../../utils/api/graphql"
 import {  signTransaction, SignTransactionOptions,BitcoinNetworkType } from 'sats-connect';
@@ -9,6 +10,9 @@ import { useAuthContext } from '@/lib/auth';
 
 import { Dialog, Menu, Transition } from "@headlessui/react"
 import { RadioGroup } from "@headlessui/react"
+import TreasuryAddress from "../../../utils/contracts/TreasuryAddress"
+import TreasuryJSON from "../../../utils/contracts/Treasury.json"
+
 
 import {
   SearchNormal1,
@@ -37,7 +41,27 @@ function Item({item, clicked}:{item:any, clicked:any}) {
 }
 
 function BorrowModal({isOpen, closeModal, items}: {isOpen:boolean, closeModal:any, items:any}) {
+	const [escrowId , setEscrowId] = useState()
+	const [successStaking, setsuccessStaking] = useState(false)
+	const [eligibleAmt , setEligibleAmt] = useState("")
+	const [approxAmt , setApproxInt] = useState("")
+	const [days,setDays]=useState(7)
+
+	//xverse credentials
+	const[add1,setAdd1]=useState()
+	const[add2,setAdd2]=useState()
+	const[pubKey1,setPubKey1]=useState()
+	const[pubKey2,setPubKey2]=useState()
+	
+
   const {metamaskData, xverseData, setAuthMetamask, setAuthXverse, getProfile}:any = useAuthContext();
+
+ //  console.log(metamaskData)
+//   console.log(xverseData)
+setAdd1(xverseData.add1)
+setAdd2(xverseData.add2)
+setPubKey1(xverseData.pubKey1)
+setPubKey2(xverseData.pubKey2)
   
   const selectedItems = items.filter((item: any) => item.selected);
 
@@ -55,28 +79,261 @@ function BorrowModal({isOpen, closeModal, items}: {isOpen:boolean, closeModal:an
   const [step, setStep]  = useState("lock");
 
   const borrowAmountRef = useRef<HTMLInputElement>(null);
+  const [broadcastEscrow] = useMutation(
+    operations.mutations.BROADCAST_ESCROW,
+    {
+      onCompleted: (data) => {
+        console.log("success :>> ", data);
+		setsuccessStaking(true)
+      },
+      onError: (error) => {
+        console.log("error :>> ", error);
+      },
+    }
+  );
+  const [executeEscrow] = useMutation(
+    operations.mutations.EXECUTE_ESCROW,
+    {
+      onCompleted: async(data) => {
+        console.log(data.executeEscrow.transactions[0])
+        
+        const signPsbtOptions:SignTransactionOptions = {
+          payload: {
+            network: {
+              type:BitcoinNetworkType.Testnet
+            },
+            message: 'Sign Transaction',
+            psbtBase64: data.executeEscrow.transactions[0].base64,
+            broadcast: false,
+            inputsToSign: [
+              { 
+                address: "tb1pekd7wajtlpu7ncd0mvjvpge9penk8knfl7wcvtwjramv0ve3e39sx023kf", 
+                signingIndexes: [0], 
+              },
+              { 
+                address: "2N5NdDEwyAiNBPWL2MNvfvcTxVobJtS5SVy", 
+                signingIndexes: [1], 
+              }
+              ],
+          },
+          onFinish: (response:any) => {
+			broadcastEscrow({
+				variables : {
+				  data : {
+				  id:escrowId,
+				  transactions : [
+					{
+					  base64 : response.psbtBase64
+					}
+				  ]
+				  }
+				}
+			  })
+           
+            // console.log(escrowId)
 
+          },
+          onCancel: () => alert('Canceled'),
+        }
+        
+        await signTransaction(signPsbtOptions);
+
+
+
+        
+      },
+      onError: (error) => {
+        console.log("error :>> ", error);
+      },
+    }
+  );
+
+  const [createEscrow, { loading, error }] = useMutation(
+    operations.mutations.CREATE_ESCROW,
+    {
+      onCompleted: (data) => {
+        console.log("success :>> ", data);
+        setEscrowId(data.createEscrow.id)
+		console.log(data.createEscrow.id)
+        executeEscrow({
+          variables : {
+            where : {id:data.createEscrow.id}
+          }
+        })
+      },
+      onError: (error) => {
+        console.log("error :>> ", error);
+      },
+    }
+  );
+ 
   function lockOridnalClicked(){
-    console.log(metamaskData);
-    console.log(xverseData);
+    // console.log(metamaskData);
+    
+	//fakefund()
+
+	const escrow = {
+		startDate: "2023-07-15T22:40:56+01:00",
+		endDate: "2023-08-14T21:40:37.658Z",
+	
+		collateral: {
+		  assets: [
+			{
+			  type: "btc.address", // 
+			  content: {
+				meta : {amount:"1000"},
+				node: {
+				  publicKey: pubKey1,
+				  value: add1
+				}
+			  },
+			  action: { type: "fee" },
+			  addresses: [
+				{
+				  value:add1 ,
+				  type: "change",
+				  publicKey: pubKey1
+				}
+			  ]
+			},
+			{
+			  type: "btc.utxo",
+			  content: {
+				meta: { amount: "10595" }, 
+				node: {
+				  id: "b53cb1f563bf986eb042e6f0b38eb2fe759bbd15b79d8f38b4018baaf3692f07",
+				  sequence: 0,
+				  publicKey: pubKey2, 
+				  value:add2  
+				}
+			  },
+			  action: {
+				configuration: {
+				  paths: [
+					
+					{"fn": "time", 
+					"tag": "unlock", 
+					"addresses": [{"value": add2, "type": "receive"}], "args": ["2023-08-25 17:49:18", "0387d7cc841bd941968e7ed394785b624490a88c579ed14c91c7ec42ef70bfb5d6"]}
+				  ]
+				},
+				type: "lock",
+			  },
+			  addresses: [
+				{  
+				  value: add2,
+				  type: "change",
+				  publicKey:pubKey2
+				},
+			  ]
+			},
+		  ],
+		},
+	  };
+
+	  createEscrow({
+		variables : {
+		  data : escrow,
+		}
+	  })
+
     setStep("approve");
   }
-
-  function signAndApproveClicked(){
-    setStep("summary");
+  let ordVal=0.000079
+  //console.log(metamaskData.signer)
+  const TreasuryContract = new ethers.Contract(TreasuryAddress, TreasuryJSON.abi, metamaskData.signer);
+  const fakefund = ()=>
+  {
+	let tx = TreasuryContract.fakeFund({value:ethers.parseUnits("0.02",18)})
+	console.log(tx)
+  }
+  
+  const getEligibleAmt = async()=> // modal-3 eligible to borrow
+  {
+	  try {
+	   let amount = await TreasuryContract.callMaxEligibleAmt(ordVal*10**18);
+		setEligibleAmt(ethers.formatUnits(amount.toString(),18))
+	  } catch (error) {
+		console.log("Error in fetching eligible amt");
+		console.log(error)
+	  }
   }
 
-  function submitClicked(e:any){
+
+  function proceedToLoanClicked(){
+	getEligibleAmt()
+	console.log(eligibleAmt)
+
+
+    setStep("summary");
+  }
+	let  borrowAmt=0.000015
+  const getApproxInterest = async()=> // modal-3 interest rate / approx interest
+  {
+	 
+	  try {
+	   let amount = await TreasuryContract.callApproxInterest(borrowAmt*10**18,days);
+	   setApproxInt(ethers.formatUnits(amount.toString(),18))
+	  } catch (error) {
+		console.log("Error in fetching approx interest"+ error);
+	  }
+  }
+  const checkInterest = ()=>{
+	let id =selectedTime.id
+	if(id==1)
+	{
+		setDays(7)
+		getApproxInterest()
+		console.log(approxAmt)
+	
+
+	}
+	else if(id==2)
+	{
+		setDays(14)
+		getApproxInterest()
+	
+	}
+	else if(id==3)
+	{
+		setDays(30)
+		getApproxInterest()
+		console.log(approxAmt)
+	
+
+	}
+	else if(id==4)
+	{
+		setDays(60)
+		getApproxInterest()
+		
+	}
+	else{
+		setDays(144)
+		getApproxInterest()
+		
+	}
+
+  }
+  async function submitClicked(e:any){
     e.preventDefault();
     console.log("Submit clicked");
     if (borrowAmountRef?.current){
       console.log(borrowAmountRef?.current["value"]);
     }
     console.log(selectedTime);
-    //setStep("approve_wallet");
+	checkInterest()
+    setStep("approve_wallet");
   }
+  const processLoan = async()=>{ // modal-4 approve tx
 
+try {
+  await TreasuryContract.withdraw(ordVal * 10 ** 18,escrowId,"demo");
+} catch (error) {
+  alert("Error in sending transaction"+error);
+}
+}
   function approveTransactionClicked(){
+	processLoan()
     setStep("success");
   }
 
@@ -102,13 +359,15 @@ function BorrowModal({isOpen, closeModal, items}: {isOpen:boolean, closeModal:an
     <>
       <div className="p-8">
 	<div className="flex items-center justify-center text-warning-500 pt-8"><Lock size={64} /></div>
-	<div className="text-lg font-semibold text-center pt-8">Approve Wallet Transaction</div>
-	<div className="text-neutral-600 text-sm pt-4 pb-8 text-center">
-	  You are almost done, just sign it and it will be completed.
-	</div>
+	{successStaking?<div className="text-lg font-semibold text-center pt-8">Staking Successful</div>:<div className="text-lg font-semibold text-center pt-8">Staking Failed</div>}
+	{successStaking?<div className="text-neutral-600 text-sm pt-4 pb-8 text-center">You can continue to Borrow</div>:<div className="text-neutral-600 text-sm pt-4 pb-8 text-center">
+Try to Stake the Ordinal again
+</div>}
+
 	<div className="flex space-x-4 w-full">
 	  <button className="basis-1/2 grow rounded-lg bg-white h-10 text-neutral-900 border border-neutral-200 text-sm font-semibold" onClick={closeModal}>Close</button>
-	  <button className="basis-1/2 grow rounded-lg bg-neutral-900 h-10 text-white text-sm font-semibold" onClick={signAndApproveClicked}>Sign and approve</button>
+	  {successStaking?<button className="basis-1/2 grow rounded-lg bg-neutral-900 h-10 text-white text-sm font-semibold" onClick={proceedToLoanClicked}>Proceed to Borrow Rbtc</button>:""}
+	  
 	</div>
       </div>
     </>
@@ -128,11 +387,11 @@ function BorrowModal({isOpen, closeModal, items}: {isOpen:boolean, closeModal:an
 	      </div>
 	      <div className="flex justify-between text-sm font-medium">
 		<div>Ordinal Value:</div>
-		<div>0.000079 BTC</div>
+		<div>{ordVal} BTC</div>
 	      </div>
 	      <div className="flex justify-between text-sm font-medium">
 		<div>Eligible to borrow</div>
-		<div>0.082rBTC</div>
+		<div>{eligibleAmt} rBTC</div>
 	      </div>
 	      <div className="flex justify-between text-sm font-medium">
 		<div>Loan to Value (LTV)</div>
@@ -144,11 +403,13 @@ function BorrowModal({isOpen, closeModal, items}: {isOpen:boolean, closeModal:an
 		<div className="relative mt-2 rounded-md shadow-sm">
 		  <input
 		    ref={borrowAmountRef}
-		    type="text"
+		    type="number"
 		    name="borrow_amount"
 		    id="borrow_amount"
 		    className="block w-full rounded-md border-0 py-1.5 px-4 text-neutral-900 ring-1 ring-inset ring-neutral-200 focus:ring-neutral-200 h-[50px]"
 		    placeholder="0.00"
+			max={eligibleAmt}
+			
 		  />
 		  <div className="absolute inset-y-0 right-0 flex items-center pr-3">
 		    <button className="rounded-2xl bg-neutral-900 text-white text-xs px-3 h-8">MAX</button>
@@ -182,10 +443,6 @@ function BorrowModal({isOpen, closeModal, items}: {isOpen:boolean, closeModal:an
 		  </RadioGroup>
 		</div>
 	      </div>
-	      <div className="flex justify-between text-sm font-medium">
-		<div>Interest Rate:</div>
-		<div>0.0 rBTC</div>
-	      </div>
 	      <div className="h-[1px] bg-neutral-200"></div>
 	      <button type="submit" className="rounded-lg bg-black text-white font-semibold text-sm h-10 w-full" onClick={submitClicked}>Submit</button>
 	    </div>
@@ -209,8 +466,8 @@ function BorrowModal({isOpen, closeModal, items}: {isOpen:boolean, closeModal:an
 	    <div>0.000079 BTC</div>
 	  </div>
 	  <div className="flex justify-between text-sm font-medium">
-	    <div>Eligible to borrow</div>
-	    <div>0.082rBTC</div>
+	    <div>Borrow Amount</div>
+	    <div>{borrowAmt} rBTC</div>
 	  </div>
 	  <div className="flex justify-between text-sm font-medium">
 	    <div>Loan to Value (LTV)</div>
@@ -218,8 +475,8 @@ function BorrowModal({isOpen, closeModal, items}: {isOpen:boolean, closeModal:an
 	  </div>
 	  <div className="h-[1px] bg-neutral-200"></div>
 	  <div className="flex justify-between text-sm font-medium">
-	    <div>Intest Rate:</div>
-	    <div>0.0 rBTC</div>
+	    <div>Interest :</div>
+	    <div>{approxAmt} rBTC</div>
 	  </div>
 	  <div className="flex justify-between text-sm font-medium">
 	    <div>Loan to Value (LTV)</div>
@@ -349,10 +606,10 @@ export default function Borrow() {
   const [broadcastEscrow] = useMutation(
     operations.mutations.BROADCAST_ESCROW,
     {
-      onCompleted: (data) => {
+      onCompleted: (data:any) => {
         console.log("success :>> ", data);
       },
-      onError: (error) => {
+      onError: (error:any) => {
         console.log("error :>> ", error);
       },
     }
@@ -361,7 +618,7 @@ export default function Borrow() {
   const [executeEscrow] = useMutation(
     operations.mutations.EXECUTE_ESCROW,
     {
-      onCompleted: async(data) => {
+      onCompleted: async(data:any) => {
         console.log(data.executeEscrow.transactions[0])
         
         const signPsbtOptions:SignTransactionOptions = {
@@ -408,7 +665,7 @@ export default function Borrow() {
 
         
       },
-      onError: (error) => {
+      onError: (error:any) => {
         console.log("error :>> ", error);
       },
     }
@@ -416,7 +673,7 @@ export default function Borrow() {
   const [createEscrow, { loading, error }] = useMutation(
     operations.mutations.CREATE_ESCROW,
     {
-      onCompleted: (data) => {
+      onCompleted: (data:any) => {
         console.log("success :>> ", data);
         setEscrowId(data.createEscrow.id)
         executeEscrow({
@@ -425,7 +682,7 @@ export default function Borrow() {
           }
         })
       },
-      onError: (error) => {
+      onError: (error:any) => {
         console.log("error :>> ", error);
       },
     }

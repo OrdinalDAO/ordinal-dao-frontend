@@ -1,0 +1,2 @@
+const TreasuryAddress = "0x01e98359993e14c6177d70Fe730Ef1FBcfA156fd" 
+export default TreasuryAddress
