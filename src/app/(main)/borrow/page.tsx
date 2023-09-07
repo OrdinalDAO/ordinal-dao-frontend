@@ -42,7 +42,7 @@ function Item({item, clicked}:{item:any, clicked:any}) {
 
 function BorrowModal({isOpen, closeModal, items}: {isOpen:boolean, closeModal:any, items:any}) {
 	const [escrowId , setEscrowId] = useState()
-	const [successStaking, setsuccessStaking] = useState(false)
+	const [successStaking, setsuccessStaking] = useState(true)
 	const [eligibleAmt , setEligibleAmt] = useState("")
 	const [approxAmt , setApproxInt] = useState("")
 	const [days,setDays]=useState(7)
@@ -58,10 +58,10 @@ function BorrowModal({isOpen, closeModal, items}: {isOpen:boolean, closeModal:an
 
  //  console.log(metamaskData)
 //   console.log(xverseData)
-setAdd1(xverseData.add1)
-setAdd2(xverseData.add2)
-setPubKey1(xverseData.pubKey1)
-setPubKey2(xverseData.pubKey2)
+// setAdd1(xverseData.add1)
+// setAdd2(xverseData.add2)
+// setPubKey1(xverseData.pubKey1)
+// setPubKey2(xverseData.pubKey2)
   
   const selectedItems = items.filter((item: any) => item.selected);
 
@@ -130,7 +130,7 @@ setPubKey2(xverseData.pubKey2)
 				}
 			  })
            
-            // console.log(escrowId)
+            console.log(escrowId)
 
           },
           onCancel: () => alert('Canceled'),
@@ -183,16 +183,16 @@ setPubKey2(xverseData.pubKey2)
 			  content: {
 				meta : {amount:"1000"},
 				node: {
-				  publicKey: pubKey1,
-				  value: add1
+				  publicKey: xverseData.pubKey1,
+				  value: xverseData.add1
 				}
 			  },
 			  action: { type: "fee" },
 			  addresses: [
 				{
-				  value:add1 ,
+				  value:xverseData.add1 ,
 				  type: "change",
-				  publicKey: pubKey1
+				  publicKey: xverseData.pubKey1
 				}
 			  ]
 			},
@@ -201,10 +201,10 @@ setPubKey2(xverseData.pubKey2)
 			  content: {
 				meta: { amount: "10595" }, 
 				node: {
-				  id: "b53cb1f563bf986eb042e6f0b38eb2fe759bbd15b79d8f38b4018baaf3692f07",
+				  id: "7c94a2687f158455c01b636258823d087152fe4707be015ad02d66660a146124",
 				  sequence: 0,
-				  publicKey: pubKey2, 
-				  value:add2  
+				  publicKey: xverseData.pubKey2, 
+				  value: xverseData.add2  
 				}
 			  },
 			  action: {
@@ -213,16 +213,16 @@ setPubKey2(xverseData.pubKey2)
 					
 					{"fn": "time", 
 					"tag": "unlock", 
-					"addresses": [{"value": add2, "type": "receive"}], "args": ["2023-08-25 17:49:18", "0387d7cc841bd941968e7ed394785b624490a88c579ed14c91c7ec42ef70bfb5d6"]}
+					"addresses": [{"value": xverseData.add2, "type": "receive"}], "args": ["2023-08-25 17:49:18", "0387d7cc841bd941968e7ed394785b624490a88c579ed14c91c7ec42ef70bfb5d6"]}
 				  ]
 				},
 				type: "lock",
 			  },
 			  addresses: [
 				{  
-				  value: add2,
+				  value: xverseData.add2,
 				  type: "change",
-				  publicKey:pubKey2
+				  publicKey:xverseData.pubKey2
 				},
 			  ]
 			},
