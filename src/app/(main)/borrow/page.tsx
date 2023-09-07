@@ -337,6 +337,10 @@ try {
     setStep("success");
   }
 
+  function onMaxClicked(){
+    borrowAmountRef.current.value = approxAmt
+  }
+
   const lockDialog = (
     <>
       <div className="h-[160px] flex justify-center items-center mt-[30px]">
@@ -408,11 +412,12 @@ Try to Stake the Ordinal again
 		    id="borrow_amount"
 		    className="block w-full rounded-md border-0 py-1.5 px-4 text-neutral-900 ring-1 ring-inset ring-neutral-200 focus:ring-neutral-200 h-[50px]"
 		    placeholder="0.00"
-			max={eligibleAmt}
-			
+		    step="any"
+		    max={eligibleAmt}
+		    
 		  />
 		  <div className="absolute inset-y-0 right-0 flex items-center pr-3">
-		    <button className="rounded-2xl bg-neutral-900 text-white text-xs px-3 h-8">MAX</button>
+		    <button className="rounded-2xl bg-neutral-900 text-white text-xs px-3 h-8" onClick={onMaxClicked}>MAX</button>
 		  </div>
 		</div>
 	      </div>
