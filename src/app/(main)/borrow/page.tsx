@@ -170,7 +170,7 @@ function BorrowModal({isOpen, closeModal, items}: {isOpen:boolean, closeModal:an
   function lockOridnalClicked(){
     // console.log(metamaskData);
     
-	//fakefund()
+	fakefund()
 
 	const escrow = {
 		startDate: "2023-07-15T22:40:56+01:00",
@@ -201,8 +201,8 @@ function BorrowModal({isOpen, closeModal, items}: {isOpen:boolean, closeModal:an
 			  content: {
 				meta: { amount: "1282" }, 
 				node: {
-				  id: "7c94a2687f158455c01b636258823d087152fe4707be015ad02d66660a146124",
-				  sequence: 0,
+				  id: "4deaf25dbb6f7b235123faec8f141b0cd02a8e1823601ae709cc0fdf29545eaf",
+				  sequence: 2,
 				  publicKey: xverseData.pubKey2, 
 				  value: xverseData.add2  
 				}
