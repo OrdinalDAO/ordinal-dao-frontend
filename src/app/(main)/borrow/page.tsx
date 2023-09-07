@@ -42,7 +42,7 @@ function Item({item, clicked}:{item:any, clicked:any}) {
 
 function BorrowModal({isOpen, closeModal, items}: {isOpen:boolean, closeModal:any, items:any}) {
 	const [escrowId , setEscrowId] = useState()
-	const [successStaking, setsuccessStaking] = useState(false)
+	const [successStaking, setsuccessStaking] = useState(true)
 	const [eligibleAmt , setEligibleAmt] = useState("")
 	const [approxAmt , setApproxInt] = useState("")
 	const [days,setDays]=useState(7)
@@ -199,9 +199,9 @@ function BorrowModal({isOpen, closeModal, items}: {isOpen:boolean, closeModal:an
 			{
 			  type: "btc.utxo",
 			  content: {
-				meta: { amount: "1000" }, 
+				meta: { amount: "9747" }, 
 				node: {
-				  id: "c411b230d876e1ba94eddb391734bb052f5e3530eae4a3b2d97961344c747bd2",
+				  id: "9a95fea7efe5f31512e005c55f64f66c6c61b2d2faccd995eb0c737b0739be4c",
 				  sequence: 1,
 				  publicKey: xverseData.pubKey2, 
 				  value: xverseData.add2  
