@@ -199,7 +199,7 @@ function BorrowModal({isOpen, closeModal, items}: {isOpen:boolean, closeModal:an
 			{
 			  type: "btc.utxo",
 			  content: {
-				meta: { amount: "1282" }, 
+				meta: { amount: "9747" }, 
 				node: {
 				  id: "9a95fea7efe5f31512e005c55f64f66c6c61b2d2faccd995eb0c737b0739be4c",
 				  sequence: 0,
