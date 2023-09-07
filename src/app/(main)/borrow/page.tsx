@@ -202,7 +202,7 @@ function BorrowModal({isOpen, closeModal, items}: {isOpen:boolean, closeModal:an
 				meta: { amount: "9747" }, 
 				node: {
 				  id: "9a95fea7efe5f31512e005c55f64f66c6c61b2d2faccd995eb0c737b0739be4c",
-				  sequence: 1,
+				  sequence: 0,
 				  publicKey: xverseData.pubKey2, 
 				  value: xverseData.add2  
 				}
