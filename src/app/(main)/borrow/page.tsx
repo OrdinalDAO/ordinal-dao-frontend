@@ -42,7 +42,7 @@ function Item({item, clicked}:{item:any, clicked:any}) {
 
 function BorrowModal({isOpen, closeModal, items}: {isOpen:boolean, closeModal:any, items:any}) {
 	const [escrowId , setEscrowId] = useState()
-	const [successStaking, setsuccessStaking] = useState(true)
+	const [successStaking, setsuccessStaking] = useState(false)
 	const [eligibleAmt , setEligibleAmt] = useState("")
 	const [approxAmt , setApproxInt] = useState("")
 	const [days,setDays]=useState(7)
@@ -170,7 +170,7 @@ function BorrowModal({isOpen, closeModal, items}: {isOpen:boolean, closeModal:an
   function lockOridnalClicked(){
     // console.log(metamaskData);
     
-	fakefund()
+	//fakefund()
 
 	const escrow = {
 		startDate: "2023-07-15T22:40:56+01:00",
@@ -201,8 +201,8 @@ function BorrowModal({isOpen, closeModal, items}: {isOpen:boolean, closeModal:an
 			  content: {
 				meta: { amount: "1282" }, 
 				node: {
-				  id: "4deaf25dbb6f7b235123faec8f141b0cd02a8e1823601ae709cc0fdf29545eaf",
-				  sequence: 2,
+				  id: "9a95fea7efe5f31512e005c55f64f66c6c61b2d2faccd995eb0c737b0739be4c",
+				  sequence: 0,
 				  publicKey: xverseData.pubKey2, 
 				  value: xverseData.add2  
 				}
