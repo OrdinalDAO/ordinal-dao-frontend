@@ -20,6 +20,8 @@
     "eslint-config-next": "13.4.19",
     "ethers": "^6.7.1",
     "graphql-tag": "^2.12.6",
+    "http-proxy": "^1.18.1",
+    "http-proxy-middleware": "^2.0.6",
     "iconsax-react": "^0.0.8",
     "lodash": "^4.17.21",
     "lodash.get": "^4.4.2",
