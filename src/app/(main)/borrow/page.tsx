@@ -174,66 +174,6 @@ function BorrowModal({ isOpen, closeModal, items, escrows }: { isOpen: boolean, 
 
 		//fakefund()
 
-		// const escrow = {
-		// 	startDate: "2023-07-15T22:40:56+01:00",
-		// 	endDate: "2023-08-14T21:40:37.658Z",
-
-		// 	collateral: {
-		// 		assets: [
-		// 			{
-		// 				type: "btc.address", // 
-		// 				content: {
-		// 					meta: { amount: "1000" },
-		// 					node: {
-		// 						publicKey: xverseData.pubKey1,
-		// 						value: xverseData.add1
-		// 					}
-		// 				},
-		// 				action: { type: "fee" },
-		// 				addresses: [
-		// 					{
-		// 						value: xverseData.add1,
-		// 						type: "change",
-		// 						publicKey: xverseData.pubKey1
-		// 					}
-		// 				]
-		// 			},//till here it all remains same
-		// 			{
-		// 				type: "btc.utxo",
-		// 				content: {
-		// 					meta: { amount: "9747" },//this should be the amount from the API objects
-		// 					node: {
-		// 						id: "9a95fea7efe5f31512e005c55f64f66c6c61b2d2faccd995eb0c737b0739be4c",//this should be the transaction id from the APIobjects
-		// 						sequence: 0,//this should be the index from the API objects
-		// 						publicKey: xverseData.pubKey2,
-		// 						value: xverseData.add2
-		// 					}
-		// 				},
-		// 				action: {
-		// 					configuration: {
-		// 						paths: [
-
-		// 							{
-		// 								"fn": "time",
-		// 								"tag": "unlock",
-		// 								"addresses": [{ "value": xverseData.add2, "type": "receive" }], "args": ["2023-08-25 17:49:18", "0387d7cc841bd941968e7ed394785b624490a88c579ed14c91c7ec42ef70bfb5d6"]
-		// 							}
-		// 						]
-		// 					},
-		// 					type: "lock",
-		// 				},
-		// 				addresses: [
-		// 					{
-		// 						value: xverseData.add2,
-		// 						type: "change",
-		// 						publicKey: xverseData.pubKey2
-		// 					},
-		// 				]
-		// 			},
-		// 		],
-		// 	},
-		// };
-
 		const filteredEscrows = (escrows as Escrow[]).filter((escrow) => {
 			return items.some((item) => {
 				return item.selected && item.id === escrow.collateral.assets[1].content.node.id;
@@ -597,7 +537,6 @@ export default function Borrow() {
 			try {
 				const response = await fetch('/api/cryptoAPI');
 				const data = await response.json();
-				// console.log(data)
 				const escrowsData = (data.data.items as Array<{
 					amount: string,
 					transactionId: string,
@@ -663,7 +602,6 @@ export default function Borrow() {
 					};
 				});
 
-				// console.log(escrows);
 				setItems(escrowsData.map((_, index) => ({
 					id: escrowsData[index].collateral.assets[1].content.node.id || '',  //here I want the escrow'sid to be used 
 					name: "Doodle Max2",
@@ -673,7 +611,6 @@ export default function Borrow() {
 					selected: false
 				})));
 				setEscrows(escrowsData);
-				//   console.log(ditems);
 			} catch (error) {
 				console.error('Error fetching data:', error);
 			}
@@ -681,23 +618,8 @@ export default function Borrow() {
 
 
 		fetchData();
-	}, []);
-	// useEffect(() => {
-	// 	console.log(items);
-	//   }, [items]);
-	useEffect(() => {
-		console.log(escrows);
-	}, [escrows]);
+	}, [xverseData]);
 	const [canStake, setCanStake] = useState(false);
-
-	// const [items, setItems] = useState([
-	// 	{ "id": 1, "name": "Doodle Max2", "status": "Available", "price": "0.12", "image": "/assets/nft-example.png", "selected": false },
-	// 	{ "id": 2, "name": "Doodle Max2", "status": "Available", "price": "0.12", "image": "/assets/nft-example.png", "selected": false },
-	// 	{ "id": 3, "name": "Doodle Max2", "status": "Available", "price": "0.12", "image": "/assets/nft-example.png", "selected": false },
-	// 	{ "id": 4, "name": "Doodle Max2", "status": "Available", "price": "0.12", "image": "/assets/nft-example.png", "selected": false },
-	// 	{ "id": 5, "name": "Doodle Max2", "status": "Available", "price": "0.12", "image": "/assets/nft-example.png", "selected": false }
-	// ]);
-
 
 	let selectedItems = [];
 
@@ -711,7 +633,7 @@ export default function Borrow() {
 			return item
 		});
 		setItems(newItems);
-		console.log(items)
+		// console.log(items)
 		selectedItems = newItems.filter((item) => item.selected);
 		setCanStake(selectedItems.length != 0);
 	}
@@ -875,25 +797,6 @@ export default function Borrow() {
 			},
 		};
 		// api calls
-
-		const fetchData = async () => {
-			try {
-				const response = await fetch('https://rest.cryptoapis.io/blockchain-data/bitcoin/testnet/addresses/tb1pekd7wajtlpu7ncd0mvjvpge9penk8knfl7wcvtwjramv0ve3e39sx023kf/unspent-outputs?context=yourExampleString&limit=50', {
-					method: 'GET',
-					headers: {
-						'X-API-Key': 'dc7f9eaa11f69a574dbe2c46c0aaf5dd8a20b6f1',
-						'Content-Type': 'application/json'
-					}
-				});
-
-				const data = await response.json();
-				console.log(data.data.items);
-			} catch (error) {
-				console.error('Error fetching data:', error);
-			}
-		};
-
-		fetchData();
 
 		createEscrow({
 			variables: {
