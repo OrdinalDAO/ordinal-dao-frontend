@@ -44,7 +44,7 @@ function Item({ item, clicked }: { item: any, clicked: any }) {
 
 function BorrowModal({ isOpen, closeModal, items, escrows }: { isOpen: boolean, closeModal: any, items: Item[], escrows: Escrow[] }) {
 	const [escrowId, setEscrowId] = useState()
-	const [successStaking, setsuccessStaking] = useState(true)
+	const [successStaking, setsuccessStaking] = useState(false)
 	const [eligibleAmt, setEligibleAmt] = useState("")
 	const [approxAmt, setApproxInt] = useState("")
 	const [days, setDays] = useState(7)
@@ -246,14 +246,14 @@ function BorrowModal({ isOpen, closeModal, items, escrows }: { isOpen: boolean, 
 					data: escrow,
 				}
 			})
-				.then((response) => {
-					console.log("Escrow created successfully:", response);
-					// Handle success if needed
-				})
-				.catch((error) => {
-					console.error("Error creating escrow:", error);
-					// Handle error if needed
-				});
+				// .then((response) => {
+				// 	console.log("Escrow created successfully:", response);
+				// 	// Handle success if needed
+				// })
+				// .catch((error) => {
+				// 	console.error("Error creating escrow:", error);
+				// 	// Handle error if needed
+				// });
 		});
 
 		setStep("approve");
