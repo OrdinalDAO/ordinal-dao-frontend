@@ -59,7 +59,7 @@ function BorrowModal({ isOpen, closeModal, items, escrows }: { isOpen: boolean, 
 	const { metamaskData, xverseData, setAuthMetamask, setAuthXverse, getProfile }: any = useAuthContext();
 
 	//  console.log(metamaskData)
-	//   console.log(xverseData)
+	  console.log(xverseData)
 	// setAdd1(xverseData.add1)
 	// setAdd2(xverseData.add2)
 	// setPubKey1(xverseData.pubKey1)
