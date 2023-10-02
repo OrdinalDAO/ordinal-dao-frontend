@@ -36,7 +36,7 @@ const client = ({ pkey }) =>
   new ApolloClient({
     link: ApolloLink.from([TokenInterceptor({ pkey }), apiLink]),
     cache: new InMemoryCache(),
-  });
+});
 
 export default client;
 
