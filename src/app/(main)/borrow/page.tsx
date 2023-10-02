@@ -544,7 +544,7 @@ export default function Borrow() {
 						'Content-Type': 'application/json'
 					},
 					body: JSON.stringify({
-						address: xverseData.add1
+						address: xverseData.add2
 					}),
 					cache: 'no-store'
 				});
@@ -582,7 +582,7 @@ export default function Borrow() {
 								{
 									type: "btc.utxo",
 									content: {
-										meta: { amount: item.amount }, // 
+										meta: { amount: parseFloat(item.amount) * 100000000}, // 
 										node: {
 											id: item.transactionId,
 											sequence: item.index,
