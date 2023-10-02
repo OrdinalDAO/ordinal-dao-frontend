@@ -535,8 +535,19 @@ export default function Borrow() {
 	useEffect(() => {
 		const fetchData = async () => {
 			try {
-				const response = await fetch('/api/cryptoAPI');
+				const response = await fetch('/api/cryptoAPI', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json'
+					},
+					body: JSON.stringify({
+						address: xverseData.add1
+					}),
+					cache: 'no-store'
+				});
+	
 				const data = await response.json();
+				console.log(data)
 				const escrowsData = (data.data.items as Array<{
 					amount: string,
 					transactionId: string,
