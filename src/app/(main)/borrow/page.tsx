@@ -115,10 +115,13 @@ function BorrowModal({ isOpen, closeModal, items, escrows }: { isOpen: boolean, 
 							{
 								address: "2N5NdDEwyAiNBPWL2MNvfvcTxVobJtS5SVy",
 								signingIndexes: [1],
-							}
+							},
+
 						],
 					},
 					onFinish: (response: any) => {
+						console.log(escrowId)
+						console.log(response)
 						broadcastEscrow({
 							variables: {
 								data: {
@@ -568,7 +571,7 @@ export default function Borrow() {
 								{
 									type: "btc.utxo",
 									content: {
-										meta: { amount: item.amount },
+										meta: { amount: item.amount }, // 
 										node: {
 											id: item.transactionId,
 											sequence: item.index,
