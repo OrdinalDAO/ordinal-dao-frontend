@@ -49,6 +49,7 @@ function BorrowModal({ isOpen, closeModal, items, escrows }: { isOpen: boolean, 
 	const [approxAmt, setApproxInt] = useState("")
 	const [days, setDays] = useState(7)
 
+
 	//xverse credentials
 	const [add1, setAdd1] = useState()
 	const [add2, setAdd2] = useState()
@@ -59,7 +60,7 @@ function BorrowModal({ isOpen, closeModal, items, escrows }: { isOpen: boolean, 
 	const { metamaskData, xverseData, setAuthMetamask, setAuthXverse, getProfile }: any = useAuthContext();
 
 	//  console.log(metamaskData)
-	  console.log(xverseData)
+	//   console.log(xverseData)
 	// setAdd1(xverseData.add1)
 	// setAdd2(xverseData.add2)
 	// setPubKey1(xverseData.pubKey1)
@@ -98,6 +99,20 @@ function BorrowModal({ isOpen, closeModal, items, escrows }: { isOpen: boolean, 
 		{
 			onCompleted: async (data) => {
 				console.log(data.executeEscrow.transactions[0])
+				let input = data.executeEscrow.transactions[0].inputs
+				
+				
+				const inputsToSignBuild =  Array.from({length:input-1},(_,i)=>{
+					return({
+						address: xverseData.add1,
+						signingIndexes: [i+1]
+					})
+				})
+				inputsToSignBuild.push({
+					address: xverseData.add2,
+					signingIndexes: [0]
+				})
+				console.log(inputsToSignBuild)
 
 				const signPsbtOptions: SignTransactionOptions = {
 					payload: {
@@ -107,17 +122,7 @@ function BorrowModal({ isOpen, closeModal, items, escrows }: { isOpen: boolean, 
 						message: 'Sign Transaction',
 						psbtBase64: data.executeEscrow.transactions[0].base64,
 						broadcast: false,
-						inputsToSign: [
-							{
-								address: "tb1pekd7wajtlpu7ncd0mvjvpge9penk8knfl7wcvtwjramv0ve3e39sx023kf",
-								signingIndexes: [0],
-							},
-							{
-								address: "2N5NdDEwyAiNBPWL2MNvfvcTxVobJtS5SVy",
-								signingIndexes: [1],
-							},
-
-						],
+						inputsToSign: inputsToSignBuild
 					},
 					onFinish: (response: any) => {
 						console.log(escrowId)
