@@ -100,6 +100,7 @@ function BorrowModal({ isOpen, closeModal, items, escrows }: { isOpen: boolean, 
 			onCompleted: async (data) => {
 				console.log(data.executeEscrow.transactions[0])
 				let input = data.executeEscrow.transactions[0].inputs
+				console.log(input)
 				
 				
 				const inputsToSignBuild =  Array.from({length:input-1},(_,i)=>{
