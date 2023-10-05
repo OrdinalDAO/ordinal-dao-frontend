@@ -7,7 +7,7 @@ interface Escrow {
             type: string;
             content: {
                 meta: {
-                    amount: number;
+                    amount: string;
                 };
                 node: {
                     publicKey: string;

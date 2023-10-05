@@ -23,6 +23,7 @@ export const EXECUTE_ESCROW = gql`
         base64
         hex
         txid
+        inputs
       }
     }
   }
