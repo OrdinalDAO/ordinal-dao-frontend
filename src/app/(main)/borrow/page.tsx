@@ -82,6 +82,7 @@ function BorrowModal({ isOpen, closeModal, items, escrows }: { isOpen: boolean, 
 	const [step, setStep] = useState("lock");
 
 	const borrowAmountRef = useRef<HTMLInputElement>(null);
+	const [borrowAmount, setBorrowAmount] = useState(0.00); 
 	const [broadcastEscrow] = useMutation(
 		operations.mutations.BROADCAST_ESCROW,
 		{
@@ -183,6 +184,7 @@ function BorrowModal({ isOpen, closeModal, items, escrows }: { isOpen: boolean, 
 		// console.log(metamaskData);
 
 		//fakefund()
+		console.log(process.env.API_BASE_URL)
 		setsuccessStaking("In progress");
 
 		const filteredEscrows = (escrows as Escrow[]).filter((escrow) => {
@@ -192,11 +194,14 @@ function BorrowModal({ isOpen, closeModal, items, escrows }: { isOpen: boolean, 
 		});
 		console.log(filteredEscrows)
 		filteredEscrows.forEach((escrow) => {
-			createEscrow({
-				variables: {
-					data: escrow,
-				}
-			})
+			// createEscrow({
+			// 	variables: {
+			// 		data: escrow,
+			// 	}
+			// })  commented by sourav
+
+
+
 			// .then((response) => {
 			// 	console.log("Escrow created successfully:", response);
 			// 	// Handle success if needed
@@ -221,7 +226,9 @@ function BorrowModal({ isOpen, closeModal, items, escrows }: { isOpen: boolean, 
 	{
 		try {
 			let amount = await TreasuryContract.callMaxEligibleAmt(ordVal * 10 ** 18);
+			console.log(amount + "is the amount");
 			setEligibleAmt(ethers.formatUnits(amount.toString(), 18))
+			console.log(eligibleAmt + "is the eligible amount");
 		} catch (error) {
 			console.log("Error in fetching eligible amt");
 			console.log(error)
@@ -285,6 +292,7 @@ function BorrowModal({ isOpen, closeModal, items, escrows }: { isOpen: boolean, 
 		console.log("Submit clicked");
 		if (borrowAmountRef?.current) {
 			console.log(borrowAmountRef?.current["value"]);
+			setBorrowAmount(parseFloat(borrowAmountRef?.current["value"]));
 		}
 		console.log(selectedTime);
 		checkInterest()
@@ -292,15 +300,55 @@ function BorrowModal({ isOpen, closeModal, items, escrows }: { isOpen: boolean, 
 	}
 	const processLoan = async () => { // modal-4 approve tx
 
-		try {
-			await TreasuryContract.withdraw(ordVal * 10 ** 18, escrowId, "demo");
-		} catch (error) {
-			alert("Error in sending transaction" + error);
-		}
+		// try {
+		// 	// await TreasuryContract.withdraw(ordVal * 10 ** 18, escrowId, "demo"); commented by sourav 
+		// 	// enter in database
+
+		const debt_principal = borrowAmount; 
+		const debt_interest = 0.08 * debt_principal; 
+
+		const data = {
+			"user_id": 3,
+			"debt_principal": debt_principal,
+			"debt_interest": debt_interest,
+			"loan_duration": selectedTime
+		};
+		console.log(data);
+
+		fetch('http://localhost:8000/api/loans/store', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify(data)
+		})
+			.then(res => res.json())
+			.then(data => {
+				console.log(data.data.id);
+				// Extract the ID from the first response
+				const id = data.data.id;
+
+				// Make the second POST request using the extracted ID
+				return fetch('http://localhost:8000/api/stakedOrdinals', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({
+						user_id: 3,
+						loan_id: id,
+						escrow_id: 456,
+						image_url: 'iuasdka',
+					})
+				});
+			})
+			.then(res => res.json())  // Handle the response of the second POST request
+			.then(console.log);      // Log the result of the second POST request
 	}
 	function approveTransactionClicked() {
 		processLoan()
 		setStep("success");
+	}
+
+	function onCompleteDialogClose() {
+		closeModal();
+		setStep("lock");
 	}
 
 	function onMaxClicked() {
@@ -351,67 +399,74 @@ function BorrowModal({ isOpen, closeModal, items, escrows }: { isOpen: boolean, 
 
 	const approveDialog = (
 		<>
-		  <div className="p-8">
-			<div className="flex items-center justify-center text-warning-500 pt-8">
-			  <Lock size={64} />
+			<div className="p-8">
+				<div className="flex items-center justify-center text-warning-500 pt-8">
+					<Lock size={64} />
+				</div>
+				{(() => {
+					switch (successStaking) {
+						case "In progress":
+							return (
+								<>
+									<div className="text-lg font-semibold text-center pt-8">
+										Staking in progress
+									</div>
+									<div className="text-neutral-600 text-sm pt-4 pb-8 text-center">
+										Please click confirm in the wallet popup
+									</div>
+								</>
+							);
+						case "Successful":
+							return (
+								<>
+									<div className="text-lg font-semibold text-center pt-8">
+										Staking Successful
+									</div>
+									<div className="text-neutral-600 text-sm pt-4 pb-8 text-center">
+										You can continue to Borrow
+									</div>
+								</>
+							);
+						default:
+							return (
+								<>
+									<div className="text-lg font-semibold text-center pt-8">
+										Staking Failed
+									</div>
+									<div className="text-neutral-600 text-sm pt-4 pb-8 text-center">
+										Try to Stake the Ordinal again
+									</div>
+								</>
+							);
+					}
+				})()}
+				<div className="flex space-x-4 w-full">
+					<button
+						className="basis-1/2 grow rounded-lg bg-white h-10 text-neutral-900 border border-neutral-200 text-sm font-semibold"
+						onClick={closeModal}
+					>
+						Close
+					</button>
+					{/* only for testing */}
+					<button
+						className="basis-1/2 grow rounded-lg bg-neutral-900 h-10 text-white text-sm font-semibold"
+						onClick={proceedToLoanClicked}
+					>
+						Proceed to Borrow Rbtc
+					</button>
+					{successStaking !== "In progress" && (
+						<button
+							className="basis-1/2 grow rounded-lg bg-neutral-900 h-10 text-white text-sm font-semibold"
+							onClick={proceedToLoanClicked}
+						>
+							Proceed to Borrow Rbtc
+						</button>
+					)}
+				</div>
 			</div>
-			{(() => {
-			  switch (successStaking) {
-				case "In progress":
-				  return (
-					<>
-					  <div className="text-lg font-semibold text-center pt-8">
-						Staking in progress
-					  </div>
-					  <div className="text-neutral-600 text-sm pt-4 pb-8 text-center">
-						Please click confirm in the wallet popup
-					  </div>
-					</>
-				  );
-				  case "Successful":
-				  return (
-					<>
-					  <div className="text-lg font-semibold text-center pt-8">
-						Staking Successful
-					  </div>
-					  <div className="text-neutral-600 text-sm pt-4 pb-8 text-center">
-						You can continue to Borrow
-					  </div>
-					</>
-				  );
-				default:
-				  return (
-					<>
-					  <div className="text-lg font-semibold text-center pt-8">
-						Staking Failed
-					  </div>
-					  <div className="text-neutral-600 text-sm pt-4 pb-8 text-center">
-						Try to Stake the Ordinal again
-					  </div>
-					</>
-				  );
-			  }
-			})()}
-			<div className="flex space-x-4 w-full">
-			  <button
-				className="basis-1/2 grow rounded-lg bg-white h-10 text-neutral-900 border border-neutral-200 text-sm font-semibold"
-				onClick={closeModal}
-			  >
-				Close
-			  </button>
-			  {successStaking !== "In progress" && (
-				<button
-				  className="basis-1/2 grow rounded-lg bg-neutral-900 h-10 text-white text-sm font-semibold"
-				  onClick={proceedToLoanClicked}
-				>
-				  Proceed to Borrow Rbtc
-				</button>
-			  )}
-			</div>
-		  </div>
 		</>
-	  );
-	  
+	);
+
 
 	const summaryDialog = (
 		<>
@@ -543,7 +598,7 @@ function BorrowModal({ isOpen, closeModal, items, escrows }: { isOpen: boolean, 
 					Your <span className="font-medium text-neutral-900">Ordinal</span> is now locked and <span className="font-medium text-neutral-900">0.082rBTC</span> deposited into your wallet.
 				</div>
 				<div className="flex space-x-4 w-full">
-					<button className="basis-1/2 grow rounded-lg bg-white h-10 text-neutral-900 border border-neutral-200 text-sm font-semibold" onClick={closeModal}>Close</button>
+					<button className="basis-1/2 grow rounded-lg bg-white h-10 text-neutral-900 border border-neutral-200 text-sm font-semibold" onClick={onCompleteDialogClose}>Close</button>
 				</div>
 			</div>
 		</>
@@ -638,7 +693,7 @@ export default function Borrow() {
 							{
 								type: "btc.address",
 								content: {
-									meta: { amount: "1000" },
+									meta: { amount: parseInt("10000") },
 									node: {
 										publicKey: xverseData.pubKey1,
 										value: xverseData.add1
@@ -689,7 +744,7 @@ export default function Borrow() {
 					},
 				};
 			});
-
+			console.log(escrowsData)
 			setItems(escrowsData.map((_, index) => ({
 				id: escrowsData[index].collateral.assets[1].content.node.id || '',
 				name: "Doodle Max2",
@@ -734,7 +789,7 @@ export default function Borrow() {
 	function closeBorrowModal() {
 		setIsLoading(true); // Set loading state to true
 		fetchData();
-		setIsBorrowModalOpen(false); 
+		setIsBorrowModalOpen(false);
 	}
 
 	const [base64Signed, setbase64] = useState();
