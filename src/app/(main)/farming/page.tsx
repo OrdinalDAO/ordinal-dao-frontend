@@ -16,7 +16,7 @@ import {
 	Lock,
 } from "iconsax-react";
 
-import { Brc20, Rbtc, OrdinalIcon, BitcoinIcon, GreenFolderIcon, StakedIcon, DangerIcon, BorrowedIcon } from "@/components/Icons";
+import { BitcoinLeafIcon, GreenFolderIcon, StakedIcon, DangerIcon, BorrowedIcon } from "@/components/Icons";
 
 import { classNames } from "@/utils"
 
@@ -86,53 +86,15 @@ export default function Loans() {
 			<main className="bg-neutral-100 text-neutral-900 p-10">
 				<div className="flex flex-col space-y-10 text-black">
 					<div>
-						<div className="text-neutral-900 text-xl font-medium pb-2">My Wallet</div>
-						<div className="text-neutral-600 text-base font-medium">Manage your crypto and ordinals</div>
-					</div>
-					<div className="grid grid-cols-4 gap-4">
-						<div className="bg-white w-full py-6 px-8 rounded-lg border border-neutral-200 flex justify-between">
-							<div>
-								<div className="text-neutral-600 font-medium text-sm">rBTC</div>
-								<div className="font-semibold text-base">0.523rBTC</div>
-							</div>
-							<div className="flex items-end">
-								<Rbtc size={25} />
-							</div>
-						</div>
-						<div className="bg-white w-full py-6 px-8 border border-neutral-200 flex justify-between">
-							<div>
-								<div className="text-neutral-600 font-medium text-sm ">BRC Token</div>
-								<div className="font-semibold text-base">BRC20</div>
-							</div>
-							<div className="flex items-end">
-								<Brc20 size={25} />
-							</div>
-						</div>
-						<div className="bg-white w-full py-6 px-8 border border-neutral-200 flex justify-between">
-							<div>
-								<div className="text-neutral-600 font-medium text-sm">Ordinals</div>
-								<div className="font-semibold text-base">14 Ordinals</div>
-							</div>
-							<div className="flex items-end">
-								<OrdinalIcon size={25} />
-							</div>
-						</div>
-						<div className="bg-white w-full py-6 px-8 border border-neutral-200 flex justify-between">
-							<div>
-								<div className="text-neutral-600 font-medium text-sm">Bitcoin</div>
-								<div className="font-semibold text-base">0.523BTC</div>
-							</div>
-							<div className="flex items-end">
-								<BitcoinIcon size={25} />
-							</div>
-						</div>
+						<div className="text-neutral-900 text-xl font-medium pb-2">Yield Farming</div>
+						<div className="text-neutral-600 text-base font-medium">Provide liquidity, earn APR</div>
 					</div>
 
 					<div className="grid grid-cols-4 gap-0">
 						<div className="bg-white w-full py-6 px-8 rounded-lg border border-neutral-200 flex justify-between">
 							<div>
-								<div className="text-neutral-600 font-medium text-sm">Ordinals Available</div>
-								<div className="font-semibold text-base">8 Ordinals</div>
+								<div className="text-neutral-600 font-medium text-sm">Total deposit</div>
+								<div className="font-semibold text-base">38.24rBTC</div>
 							</div>
 							<div className="flex items-end">
 								<GreenFolderIcon size={25} />
@@ -140,8 +102,8 @@ export default function Loans() {
 						</div>
 						<div className="bg-white w-full py-6 px-8 border border-neutral-200 flex justify-between">
 							<div>
-								<div className="text-neutral-600 font-medium text-sm ">Staked</div>
-								<div className="font-semibold text-base">4 ordinals</div>
+								<div className="text-neutral-600 font-medium text-sm ">Total earning</div>
+								<div className="font-semibold text-base">2.101$00D</div>
 							</div>
 							<div className="flex items-end">
 								<StakedIcon size={25} />
@@ -149,8 +111,8 @@ export default function Loans() {
 						</div>
 						<div className="bg-white w-full py-6 px-8 border border-neutral-200 flex justify-between">
 							<div>
-								<div className="text-neutral-600 font-medium text-sm">Ordinals in danger</div>
-								<div className="font-semibold text-base">2 Ordinals</div>
+								<div className="text-neutral-600 font-medium text-sm">Total withdrawn</div>
+								<div className="font-semibold text-base">12.291$OOD</div>
 							</div>
 							<div className="flex items-end">
 								<DangerIcon size={25} />
@@ -158,8 +120,8 @@ export default function Loans() {
 						</div>
 						<div className="bg-white w-full py-6 px-8 border border-neutral-200 flex justify-between">
 							<div>
-								<div className="text-neutral-600 font-medium text-sm">Borrowed</div>
-								<div className="font-semibold text-base">0.981rBTC</div>
+								<div className="text-neutral-600 font-medium text-sm">Total liquidity</div>
+								<div className="font-semibold text-base">265,416.29rBTC</div>
 							</div>
 							<div className="flex items-end">
 								<BorrowedIcon size={25} />
@@ -167,15 +129,38 @@ export default function Loans() {
 						</div>
 					</div>
 
+
 					<div>
-						<div className="text-neutral-900 text-xl font-medium pb-2">My Ordinals</div>
-						<div className="text-neutral-600 text-base font-medium">Overview of your ordinals</div>
+						<div className="text-neutral-900 text-xl font-medium pb-2">Reserve Pool</div>
+						<div className="text-neutral-600 text-base font-medium">View all available reserve pool</div>
 					</div>
-					<div className="pt-6">
-						<div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-							{items.map((item, index) => <Item item={item} />)}
+					<div className="grid grid-cols-3 gap-0">
+						<div className="bg-white w-full py-8 px-8 rounded-lg border border-neutral-200 flex justify-between">
+							<div className="flex justify-between">
+								<div className="">
+									<BitcoinLeafIcon size={60} />
+								</div>
+								<div className="mar ml-10">
+									<div className="text-neutral-600 font-medium text-sm">Reserve</div>
+									<div className="font-semibold text-base">OrdinalDAO Pool</div>
+								</div>
+							</div>
+						</div>
+						<div className="bg-white w-full py-8 px-8 border border-neutral-200 flex justify-between">
+							<div>
+								<div className="text-neutral-600 font-medium text-sm">Deposit APR</div>
+								<div className="font-semibold text-base">5% in $00D</div>
+							</div>
+						</div>
+						<div className="bg-white w-full py-8 px-8 border border-neutral-200 flex justify-between">
+							<div>
+								<div className="text-neutral-600 font-medium text-sm">Loan to Value(LTV)</div>
+								<div className="font-semibold text-base">20%</div>
+							</div>
+							<button className="rounded-lg bg-warning-500 text-white px-4 py-2 font-semibold mt-2 md:mt-0">Deposit rBTC</button>
 						</div>
 					</div>
+
 
 					<div>
 						<div className="text-neutral-900 text-xl font-medium pb-2">Loans</div>
